@@ -443,7 +443,7 @@ export default function VolleyballRotationHelper() {
                   <input
                     className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm outline-none transition-shadow focus:ring-2 focus:ring-indigo-400 shadow-sm"
                     placeholder={`Type ${label} name…`}
-                    value={form[key] || key}
+                    value={form[key]}
                     onChange={(e) =>
                       setForm((f) => ({ ...f, [key]: e.target.value }))
                     }
