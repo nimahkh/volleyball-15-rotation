@@ -1,13 +1,5 @@
 import React, { useMemo, useState } from "react";
-
-/**
- * Volleyball 5-1 Rotation Helper (EU 2025)
- * - Correct Libero substitution logic:
- *   R1–R2 → Libero replaces MB1
- *   R3 → Libero OUT
- *   R4–R5 → Libero replaces MB2
- *   R6 → Libero OUT
- */
+import BALL from "./assets/ball.webp";
 
 const ROLES = [
   { key: "OH1", label: "Outside Hitter 1 (OH1)" },
@@ -23,6 +15,66 @@ type RoleKey = (typeof ROLES)[number]["key"];
 type Players = Record<RoleKey, string>;
 type TabKey = "receive" | "serve";
 
+const BASE_POSITION_MAP: Record<
+  number,
+  Record<RoleKey, { x: number; y: number }>
+> = {
+  1: {
+    Setter: { x: 80, y: 70 },
+    OH1: { x: 18, y: 16 },
+    MB2: { x: 50, y: 16 },
+    Opp: { x: 78, y: 16 },
+    OH2: { x: 50, y: 70 },
+    MB1: { x: 22, y: 70 },
+    Libero: { x: 22, y: 72 },
+  },
+  2: {
+    OH1: { x: 50, y: 70 },
+    MB2: { x: 50, y: 16 },
+    Opp: { x: 78, y: 16 },
+    Setter: { x: 80, y: 70 },
+    OH2: { x: 22, y: 16 },
+    MB1: { x: 25, y: 72 },
+    Libero: { x: 50, y: 72 },
+  },
+  3: {
+    MB2: { x: 20, y: 70 },
+    Opp: { x: 78, y: 16 },
+    Setter: { x: 80, y: 70 },
+    OH1: { x: 50, y: 72 },
+    OH2: { x: 22, y: 16 },
+    MB1: { x: 50, y: 16 },
+    Libero: { x: 50, y: 72 },
+  },
+  4: {
+    Opp: { x: 80, y: 70 },
+    Setter: { x: 78, y: 16 },
+    MB1: { x: 50, y: 16 },
+    OH1: { x: 50, y: 70 },
+    MB2: { x: 20, y: 70 },
+    OH2: { x: 22, y: 16 },
+    Libero: { x: 50, y: 72 },
+  },
+  5: {
+    OH2: { x: 50, y: 70 },
+    Setter: { x: 78, y: 16 },
+    OH1: { x: 20, y: 16 },
+    MB1: { x: 50, y: 16 },
+    Opp: { x: 78, y: 70 },
+    MB2: { x: 20, y: 70 },
+    Libero: { x: 50, y: 72 },
+  },
+  6: {
+    MB1: { x: 20, y: 60 },
+    OH1: { x: 18, y: 16 },
+    MB2: { x: 50, y: 16 },
+    Setter: { x: 78, y: 16 },
+    OH2: { x: 50, y: 60 },
+    Opp: { x: 78, y: 60 },
+    Libero: { x: 50, y: 72 },
+  },
+};
+
 const POSITION_MAP: Record<
   TabKey,
   Record<number, Record<RoleKey, { x: number; y: number }>>
@@ -33,9 +85,9 @@ const POSITION_MAP: Record<
       OH2: { x: 20, y: 59 },
       Opp: { x: 20, y: 20 },
       Setter: { x: 82, y: 78 },
-      MB1: { x: 50, y: 70 }, // Libero
+      MB1: { x: 50, y: 70 },
       MB2: { x: 25, y: 30 },
-      Libero: { x: 78, y: 60 }, // OUT (not shown)
+      Libero: { x: 78, y: 60 },
     },
     2: {
       OH1: { x: 78, y: 70 },
@@ -44,7 +96,7 @@ const POSITION_MAP: Record<
       Setter: { x: 60, y: 27 },
       MB1: { x: 50, y: 70 },
       MB2: { x: 72, y: 35 },
-      Libero: { x: 22, y: 74 }, // OUT (not shown)
+      Libero: { x: 22, y: 74 },
     },
     3: {
       OH1: { x: 50, y: 72 },
@@ -84,18 +136,15 @@ const POSITION_MAP: Record<
     },
   },
   serve: {
-    // Rotation 1 — Setter serving (Zone 1)
     1: {
-      Setter: { x: 80, y: 95 }, // Zone 1
-      OH1: { x: 18, y: 16 }, // Zone 4
-      MB2: { x: 50, y: 16 }, // Zone 3
-      Opp: { x: 78, y: 16 }, // Zone 2
-      OH2: { x: 50, y: 70 }, // Zone 5
-      MB1: { x: 22, y: 70 }, // Zone 6
-      Libero: { x: 22, y: 72 }, // replaces MB1
+      Setter: { x: 80, y: 95 },
+      OH1: { x: 18, y: 16 },
+      MB2: { x: 50, y: 16 },
+      Opp: { x: 78, y: 16 },
+      OH2: { x: 50, y: 70 },
+      MB1: { x: 22, y: 70 },
+      Libero: { x: 22, y: 72 },
     },
-
-    // Rotation 2 — OH1 serving (Zone 1)
     2: {
       OH1: { x: 80, y: 95 },
       MB2: { x: 50, y: 16 },
@@ -105,10 +154,8 @@ const POSITION_MAP: Record<
       MB1: { x: 25, y: 72 },
       Libero: { x: 50, y: 72 },
     },
-
-    // Rotation 3 — MB (MB2) serving (Zone 1)
     3: {
-      MB2: { x: 80, y: 95 }, // Zone 1
+      MB2: { x: 80, y: 95 },
       Opp: { x: 78, y: 16 },
       Setter: { x: 70, y: 40 },
       OH1: { x: 50, y: 72 },
@@ -116,10 +163,8 @@ const POSITION_MAP: Record<
       MB1: { x: 50, y: 16 },
       Libero: { x: 50, y: 72 },
     },
-
-    // Rotation 4 — Opp serving (Zone 1)
     4: {
-      Opp: { x: 80, y: 95 }, // Zone 1
+      Opp: { x: 80, y: 95 },
       Setter: { x: 78, y: 16 },
       MB1: { x: 50, y: 16 },
       OH1: { x: 50, y: 70 },
@@ -127,8 +172,6 @@ const POSITION_MAP: Record<
       OH2: { x: 22, y: 16 },
       Libero: { x: 50, y: 72 },
     },
-
-    // Rotation 5 — OH2 serving (Zone 1)
     5: {
       OH2: { x: 80, y: 95 },
       Setter: { x: 78, y: 16 },
@@ -138,10 +181,8 @@ const POSITION_MAP: Record<
       MB2: { x: 20, y: 70 },
       Libero: { x: 50, y: 72 },
     },
-
-    // Rotation 6 — Setter serving again (Zone 1)
     6: {
-      MB1: { x: 80, y: 95 }, // Zone 1
+      MB1: { x: 80, y: 95 },
       OH1: { x: 18, y: 16 },
       MB2: { x: 50, y: 16 },
       Setter: { x: 78, y: 16 },
@@ -173,20 +214,45 @@ function Court({
   tab,
   rotation,
   players,
+  isPlaying,
+  resetPosition,
 }: {
   tab: TabKey;
   rotation: number;
   players: Players;
+  isPlaying: boolean;
+  resetPosition: boolean;
 }) {
-  const coords = useMemo(() => POSITION_MAP[tab][rotation], [tab, rotation]);
+  const [coords, setCoords] = useState<
+    Record<RoleKey, { x: number; y: number }>
+  >(POSITION_MAP[tab][rotation]);
 
-  // Libero is ACTIVE in rotations 1,2,4,5; OUT in 3,6 (receive tabs).
+  React.useEffect(() => {
+    setCoords(POSITION_MAP[tab][rotation]);
+  }, [tab, rotation]);
+
+  React.useEffect(() => {
+    if (resetPosition) {
+      setCoords(POSITION_MAP.receive[rotation]);
+    }
+    if (isPlaying) {
+      // Step 1: instantly go to Receive positions
+      setCoords(POSITION_MAP.receive[rotation]);
+
+      // Step 2: after short delay, ball animation starts and players go to Base
+      const goBaseTimer = setTimeout(() => {
+        setCoords(BASE_POSITION_MAP[rotation]);
+      }, 2500);
+
+      return () => {
+        clearTimeout(goBaseTimer);
+      };
+    }
+  }, [isPlaying, rotation, resetPosition]);
+
   const liberoActive =
     tab === "receive" || (tab === "serve" && rotation !== 3 && rotation !== 6);
 
-  // Which middle does Libero replace when active?
-  // Your convention: R1–R3 pair near Setter is MB1 → Libero replaces MB1 in 1–3.
-  //                  R4–R6 far side is MB2 → Libero replaces MB2 in 4–6.
   const liberoReplaces: () => RoleKey = () => {
     if (rotation < 3) return "MB1";
     if (rotation >= 3 && rotation < 6) return "MB2";
@@ -203,16 +269,24 @@ function Court({
         <div className="absolute left-[8%] top-0 bottom-0 w-0.5 bg-zinc-400/40" />
         <div className="absolute right-[8%] top-0 bottom-0 w-0.5 bg-zinc-400/40" />
 
+        {/* Volleyball animation */}
+        {tab === "receive" && (
+          <img
+            src={BALL}
+            alt="Volleyball"
+            className={`absolute left-1/2 top-[3%] h-auto w-10 z-50 rounded-full
+                        transition-transform duration-2000 ease-in-out
+                        ${isPlaying ? "animate-ballFlight" : ""}`}
+          />
+        )}
+
         {(Object.keys(players) as RoleKey[]).map((role) => {
-          // If Libero is active, hide the middle they replace; show Libero instead.
           if (liberoActive) {
-            if (role === liberoReplaces()) return null; // hide replaced MB
+            if (role === liberoReplaces()) return null;
           } else {
-            // Libero out (R3, R6): hide Libero, show both MBs
             if (role === "Libero") return null;
           }
 
-          // Libero stands at the replaced middle's coordinates when active
           const { x, y } =
             role === "Libero" && liberoActive
               ? coords[liberoReplaces()]
@@ -226,7 +300,7 @@ function Court({
                 top: `${y}%`,
                 transform: "translate(-50%, -50%)",
               }}
-              className="absolute transition-all duration-500 ease-out"
+              className="absolute transition-all duration-2500 ease-out"
             >
               <PlayerChip role={role} name={players[role]} />
             </div>
@@ -237,11 +311,12 @@ function Court({
   );
 }
 
-// --- Main Component --------------------------------------------------------
 export default function VolleyballRotationHelper() {
   const [tab, setTab] = useState<TabKey>("receive");
   const [rotation, setRotation] = useState<number>(1);
   const [players, setPlayers] = useState<Players | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [resetPosition, setResetPosition] = useState(false);
   const [form, setForm] = useState<Record<RoleKey, string>>({
     OH1: "OH1",
     OH2: "OH2",
@@ -260,6 +335,18 @@ export default function VolleyballRotationHelper() {
     );
     if (!allFilled) return alert("Please enter all 7 player names.");
     setPlayers(form as Players);
+  }
+
+  function playDemo() {
+    if (isPlaying) return;
+    setIsPlaying(true);
+    setTimeout(() => setIsPlaying(false), 4800);
+  }
+
+  function handleResetPositions() {
+    if (resetPosition) return;
+    setResetPosition(true);
+    setTimeout(() => setResetPosition(false), 2500);
   }
 
   return (
@@ -327,13 +414,50 @@ export default function VolleyballRotationHelper() {
                   Serve
                 </button>
               </div>
+
               <div className="text-sm font-semibold text-zinc-700">
                 Rotation <span className="text-indigo-700">{rotation}</span>
               </div>
             </div>
 
+            {tab === "receive" && (
+              <div className="flex justify-center gap-2 bg-white mt-0 p-2 rounded-md shadow-md">
+                <button
+                  onClick={playDemo}
+                  disabled={isPlaying || resetPosition}
+                  className={`px-6 py-2 rounded-full font-semibold shadow
+                    ${
+                      isPlaying || resetPosition
+                        ? "bg-gray-400"
+                        : "bg-yellow-500 hover:bg-yellow-400 text-white"
+                    }`}
+                >
+                  {isPlaying ? "Playing..." : "▶ Play"}
+                </button>
+                {resetPosition}
+                <button
+                  onClick={handleResetPositions}
+                  disabled={resetPosition || isPlaying}
+                  className={`px-6 py-2 rounded-full font-semibold shadow
+                    ${
+                      resetPosition || isPlaying
+                        ? "bg-gray-400"
+                        : "bg-blue-500 hover:bg-blue-400 text-white"
+                    }`}
+                >
+                  {resetPosition ? "Resetting..." : "Reset"}
+                </button>
+              </div>
+            )}
+
             <div className="rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm">
-              <Court tab={tab} rotation={rotation} players={players} />
+              <Court
+                tab={tab}
+                rotation={rotation}
+                players={players}
+                isPlaying={isPlaying}
+                resetPosition={resetPosition}
+              />
             </div>
 
             <div className="flex items-center justify-between gap-2">
@@ -348,7 +472,7 @@ export default function VolleyballRotationHelper() {
               </div>
               <button
                 onClick={() => setRotation((r) => (r % 6) + 1)}
-                className="bg-indigo-600 text-white px-4 py-2 rounded-full font-semibold"
+                className="bg-blue-600 text-white px-4 py-2 rounded-full font-semibold"
               >
                 Next ▶
               </button>
@@ -363,3 +487,15 @@ export default function VolleyballRotationHelper() {
     </div>
   );
 }
+
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes ballFlight {
+  0% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, 30vh); }
+  100% { transform: translate(-50%, -5vh); }
+}
+.animate-ballFlight {
+  animation: ballFlight 4.5s ease-in-out forwards;
+}`;
+document.head.appendChild(style);
