@@ -57,8 +57,8 @@ const POSITION_MAP: Record<
     },
     4: {
       OH1: { x: 50, y: 68 },
-      OH2: { x: 30, y: 50 },
-      Opp: { x: 70, y: 80 },
+      OH2: { x: 30, y: 60 },
+      Opp: { x: 84, y: 84 },
       Setter: { x: 15, y: 15 },
       MB1: { x: 23, y: 25 },
       MB2: { x: 78, y: 68 },
