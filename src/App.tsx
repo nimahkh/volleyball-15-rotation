@@ -13,8 +13,76 @@ const ROLES = [
 
 type RoleKey = (typeof ROLES)[number]["key"];
 type Players = Record<RoleKey, string>;
-type TabKey = "receive" | "serve";
+type TabKey = "receive" | "serve" | "base";
 
+const BASE_ZONES: Record<string, { x: number; y: number }> = {
+  number1: { x: 80, y: 80 },
+  number2: { x: 80, y: 20 },
+  number3: { x: 50, y: 20 },
+  number4: { x: 20, y: 20 },
+  number5: { x: 20, y: 80 },
+  number6: { x: 50, y: 80 },
+};
+
+const ROTATION_BASE_MAP: Record<
+  number,
+  Record<RoleKey, { x: number; y: number }>
+> = {
+  1: {
+    Setter: BASE_ZONES.number1,
+    OH1: BASE_ZONES.number2,
+    MB2: BASE_ZONES.number3,
+    Opp: BASE_ZONES.number4,
+    OH2: BASE_ZONES.number5,
+    MB1: BASE_ZONES.number6,
+    Libero: { x: 50, y: 80 },
+  },
+  2: {
+    Setter: BASE_ZONES.number6,
+    OH1: BASE_ZONES.number1,
+    MB2: BASE_ZONES.number2,
+    Opp: BASE_ZONES.number3,
+    OH2: BASE_ZONES.number4,
+    MB1: BASE_ZONES.number5,
+    Libero: { x: 50, y: 80 },
+  },
+  3: {
+    Setter: BASE_ZONES.number5,
+    OH1: BASE_ZONES.number6,
+    MB2: BASE_ZONES.number1,
+    Opp: BASE_ZONES.number2,
+    OH2: BASE_ZONES.number3,
+    MB1: BASE_ZONES.number4,
+    Libero: { x: 50, y: 80 },
+  },
+  4: {
+    Setter: BASE_ZONES.number4,
+    OH1: BASE_ZONES.number5,
+    MB2: BASE_ZONES.number6,
+    Opp: BASE_ZONES.number1,
+    OH2: BASE_ZONES.number2,
+    MB1: BASE_ZONES.number3,
+    Libero: { x: 50, y: 80 },
+  },
+  5: {
+    Setter: BASE_ZONES.number3,
+    OH1: BASE_ZONES.number4,
+    MB2: BASE_ZONES.number5,
+    Opp: BASE_ZONES.number6,
+    OH2: BASE_ZONES.number1,
+    MB1: BASE_ZONES.number2,
+    Libero: { x: 50, y: 80 },
+  },
+  6: {
+    Setter: BASE_ZONES.number2,
+    OH1: BASE_ZONES.number3,
+    MB2: BASE_ZONES.number4,
+    Opp: BASE_ZONES.number5,
+    OH2: BASE_ZONES.number6,
+    MB1: BASE_ZONES.number1,
+    Libero: { x: 50, y: 80 },
+  },
+};
 const BASE_POSITION_MAP: Record<
   number,
   Record<RoleKey, { x: number; y: number }>
@@ -79,6 +147,7 @@ const POSITION_MAP: Record<
   TabKey,
   Record<number, Record<RoleKey, { x: number; y: number }>>
 > = {
+  base: ROTATION_BASE_MAP,
   receive: {
     1: {
       OH1: { x: 78, y: 59 },
@@ -251,7 +320,8 @@ function Court({
   }, [isPlaying, rotation, resetPosition]);
 
   const liberoActive =
-    tab === "receive" || (tab === "serve" && rotation !== 3 && rotation !== 6);
+    tab === "receive" ||
+    ((tab === "serve" || tab === "base") && rotation !== 3 && rotation !== 6);
 
   const liberoReplaces: () => RoleKey = () => {
     if (rotation < 3) return "MB1";
@@ -350,7 +420,7 @@ export default function VolleyballRotationHelper() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-zinc-100 sm:p-4">
       <div className="mx-auto w-full max-w-[480px] px-4 py-6">
         <h1 className="mb-4 text-center text-xl font-extrabold text-zinc-900">
           Volleyball 5-1 Rotation Helper
@@ -391,31 +461,34 @@ export default function VolleyballRotationHelper() {
 
         {ready && players && (
           <div className="mt-4 space-y-4">
-            <div className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white p-2 shadow-sm">
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setTab("receive")}
-                  className={`px-4 py-2 text-sm font-semibold ${
-                    tab === "receive"
-                      ? "text-indigo-700 border-b-2 border-indigo-600"
-                      : "text-zinc-700"
-                  }`}
-                >
-                  Receive
-                </button>
-                <button
-                  onClick={() => setTab("serve")}
-                  className={`px-4 py-2 text-sm font-semibold ${
-                    tab === "serve"
-                      ? "text-indigo-700 border-b-2 border-indigo-600"
-                      : "text-zinc-700"
-                  }`}
-                >
-                  Serve
-                </button>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-xl border border-zinc-200 bg-white p-2 shadow-sm">
+              {/* Tabs container */}
+              <div
+                className="flex gap-2 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 sm:pb-0"
+                style={{ WebkitOverflowScrolling: "touch" }}
+              >
+                {[
+                  { key: "receive", label: "Receive" },
+                  { key: "serve", label: "Serve" },
+                  { key: "base", label: "Rotation Position" },
+                ].map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => setTab(key as TabKey)}
+                    className={`shrink-0 snap-center px-4 py-2 text-sm sm:text-base font-semibold rounded-full border transition-all
+                      ${
+                        tab === key
+                          ? "bg-blue-600 text-white shadow-md"
+                          : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+                      }`}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
 
-              <div className="text-sm font-semibold text-zinc-700">
+              {/* Rotation indicator */}
+              <div className="text-sm sm:text-base font-semibold text-zinc-700 text-center sm:text-right mt-2 sm:mt-0">
                 Rotation <span className="text-indigo-700">{rotation}</span>
               </div>
             </div>
@@ -465,7 +538,7 @@ export default function VolleyballRotationHelper() {
                 onClick={() => setRotation((r) => ((r - 2 + 6) % 6) + 1)}
                 className="bg-white border border-zinc-300 px-4 py-2 rounded-full text-sm font-semibold text-zinc-700"
               >
-                ◀ Prev
+                Prev
               </button>
               <div className="text-xs text-zinc-500">
                 Tap Prev/Next to animate rotation.
@@ -474,7 +547,7 @@ export default function VolleyballRotationHelper() {
                 onClick={() => setRotation((r) => (r % 6) + 1)}
                 className="bg-blue-600 text-white px-4 py-2 rounded-full font-semibold"
               >
-                Next ▶
+                Next
               </button>
             </div>
           </div>
