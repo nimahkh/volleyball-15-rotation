@@ -292,9 +292,58 @@ function Court({
   isPlaying: boolean;
   resetPosition: boolean;
 }) {
+  const [ballPos, setBallPos] = useState<{ x: number; y: number } | null>(null);
+
   const [coords, setCoords] = useState<
     Record<RoleKey, { x: number; y: number }>
   >(POSITION_MAP[tab][rotation]);
+
+  const liberoActive =
+    tab === "receive" ||
+    ((tab === "serve" || tab === "base") && rotation !== 3 && rotation !== 6);
+
+  const liberoReplaces = React.useCallback((): RoleKey => {
+    if (rotation < 3) return "MB1";
+    if (rotation >= 3 && rotation < 6) return "MB2";
+    return "MB1";
+  }, [rotation]);
+
+  const animateBallToLiberoAndBack = React.useCallback(
+    (allCoords: typeof coords) => {
+      if (tab !== "receive") return;
+      const targetLibero = (liberoActive
+        ? allCoords[liberoReplaces()]
+        : allCoords["Libero"]) ?? {
+        x: 50,
+        y: 20,
+      };
+
+      // Start position: top/center (opponent serve)
+      setBallPos({ x: 50, y: 2 });
+
+      // Step 1️⃣: Ball goes to Libero
+      const t1 = setTimeout(() => {
+        setBallPos(targetLibero);
+      }, 500);
+
+      // Step 2️⃣: Ball goes back over the net
+      const t2 = setTimeout(() => {
+        setBallPos({ x: 50, y: 6 });
+      }, 2000);
+
+      // Step 3️⃣: Hide the ball
+      const t3 = setTimeout(() => {
+        setBallPos(null);
+      }, 3300);
+
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+        clearTimeout(t3);
+      };
+    },
+    [tab, liberoActive, liberoReplaces],
+  );
 
   React.useEffect(() => {
     setCoords(POSITION_MAP[tab][rotation]);
@@ -305,33 +354,39 @@ function Court({
       setCoords(POSITION_MAP.receive[rotation]);
     }
     if (isPlaying) {
-      // Step 1: instantly go to Receive positions
       setCoords(POSITION_MAP.receive[rotation]);
 
-      // Step 2: after short delay, ball animation starts and players go to Base
-      const goBaseTimer = setTimeout(() => {
-        setCoords(BASE_POSITION_MAP[rotation]);
-      }, 2500);
+      const frame = requestAnimationFrame(() => {
+        const cleanupBall = animateBallToLiberoAndBack(
+          POSITION_MAP.receive[rotation],
+        );
 
-      return () => {
-        clearTimeout(goBaseTimer);
-      };
+        const goBaseTimer = setTimeout(() => {
+          setCoords(BASE_POSITION_MAP[rotation]);
+        }, 2500);
+
+        return () => {
+          cancelAnimationFrame(frame);
+          clearTimeout(goBaseTimer);
+          if (cleanupBall) cleanupBall();
+        };
+      });
+
+      return () => cancelAnimationFrame(frame);
     }
-  }, [isPlaying, rotation, resetPosition]);
-
-  const liberoActive =
-    tab === "receive" ||
-    ((tab === "serve" || tab === "base") && rotation !== 3 && rotation !== 6);
-
-  const liberoReplaces: () => RoleKey = () => {
-    if (rotation < 3) return "MB1";
-    if (rotation >= 3 && rotation < 6) return "MB2";
-    return "MB1";
-  };
+  }, [isPlaying, rotation, resetPosition, animateBallToLiberoAndBack]);
 
   return (
     <div className="mx-auto w-full max-w-[420px]">
-      <div className="relative aspect-[1/1.1] w-full rounded-2xl border border-zinc-300 bg-emerald-50 shadow-inner overflow-hidden">
+      <div
+        className="court relative aspect-[1/1.1] w-full rounded-2xl border border-zinc-300 bg-blue-100 shadow-inner overflow-hidden"
+        style={
+          {
+            "--ball-max-height": "550%", // safe vertical travel distance (relative to court)
+            "--ball-overshoot": "-5%", // how far up it ends after returning
+          } as React.CSSProperties
+        }
+      >
         {/* Lines */}
         <div className="absolute left-0 right-0 top-[8%] h-1 bg-zinc-400/70" />
         <div className="absolute left-0 right-0 top-[36%] h-0.5 bg-zinc-400/40" />
@@ -340,13 +395,18 @@ function Court({
         <div className="absolute right-[8%] top-0 bottom-0 w-0.5 bg-zinc-400/40" />
 
         {/* Volleyball animation */}
-        {tab === "receive" && (
+        {tab === "receive" && ballPos && (
           <img
             src={BALL}
             alt="Volleyball"
-            className={`absolute left-1/2 top-[3%] h-auto w-10 z-50 rounded-full
-                        transition-transform duration-2000 ease-in-out
-                        ${isPlaying ? "animate-ballFlight" : ""}`}
+            className="ball absolute z-50 pointer-events-none select-none"
+            style={{
+              left: `${ballPos.x}%`,
+              top: `${ballPos.y}%`,
+              transform: "translate(-50%, -50%)",
+              width: "2.25rem", // ~w-9 for a slightly smaller ball
+              height: "auto",
+            }}
           />
         )}
 
@@ -410,7 +470,7 @@ export default function VolleyballRotationHelper() {
   function playDemo() {
     if (isPlaying) return;
     setIsPlaying(true);
-    setTimeout(() => setIsPlaying(false), 4800);
+    setTimeout(() => setIsPlaying(false), 3000);
   }
 
   function handleResetPositions() {
@@ -540,7 +600,7 @@ export default function VolleyballRotationHelper() {
               >
                 Prev
               </button>
-              <div className="text-xs text-zinc-500">
+              <div className="text-xs text-center text-zinc-500">
                 Tap Prev/Next to animate rotation.
               </div>
               <button
@@ -568,12 +628,14 @@ export default function VolleyballRotationHelper() {
 
 const style = document.createElement("style");
 style.innerHTML = `
-@keyframes ballFlight {
-  0% { transform: translate(-50%, 0); }
-  50% { transform: translate(-50%, 30vh); }
-  100% { transform: translate(-50%, -5vh); }
-}
-.animate-ballFlight {
-  animation: ballFlight 4.5s ease-in-out forwards;
-}`;
+  .ball {
+    transition:
+      left 900ms cubic-bezier(0.22, 1, 0.36, 1),
+      top  900ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0s; /* keep center alignment instant */
+    will-change: left, top, transform;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+  }
+`;
 document.head.appendChild(style);
