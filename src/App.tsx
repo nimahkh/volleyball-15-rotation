@@ -554,7 +554,12 @@ export default function VolleyballRotationHelper() {
         )}
 
         <footer className="mt-6 text-center text-xs text-zinc-500">
-          Made with ❤️
+          Made with ❤️ for Volleyball lovers
+          <br />
+          Author:{" "}
+          <span className="font-bold">
+            <a href="mailto:nima.2004hkh@gmail.com">Nima</a>
+          </span>
         </footer>
       </div>
     </div>
