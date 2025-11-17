@@ -31,10 +31,10 @@ const POSITION_MAP: Record<
     1: {
       OH1: { x: 78, y: 59 },
       OH2: { x: 20, y: 59 },
-      Opp: { x: 25, y: 30 },
+      Opp: { x: 20, y: 20 },
       Setter: { x: 82, y: 78 },
       MB1: { x: 50, y: 70 }, // Libero
-      MB2: { x: 20, y: 20 },
+      MB2: { x: 25, y: 30 },
       Libero: { x: 78, y: 60 }, // OUT (not shown)
     },
     2: {
@@ -90,9 +90,9 @@ const POSITION_MAP: Record<
       OH1: { x: 18, y: 16 }, // Zone 4
       MB2: { x: 50, y: 16 }, // Zone 3
       Opp: { x: 78, y: 16 }, // Zone 2
-      OH2: { x: 22, y: 70 }, // Zone 5
-      MB1: { x: 50, y: 72 }, // Zone 6
-      Libero: { x: 50, y: 72 }, // replaces MB1
+      OH2: { x: 50, y: 70 }, // Zone 5
+      MB1: { x: 22, y: 70 }, // Zone 6
+      Libero: { x: 22, y: 72 }, // replaces MB1
     },
 
     // Rotation 2 — OH1 serving (Zone 1)
@@ -122,9 +122,9 @@ const POSITION_MAP: Record<
       Opp: { x: 80, y: 95 }, // Zone 1
       Setter: { x: 78, y: 16 },
       MB1: { x: 50, y: 16 },
-      OH1: { x: 20, y: 16 },
-      MB2: { x: 50, y: 72 },
-      OH2: { x: 22, y: 70 },
+      OH1: { x: 50, y: 70 },
+      MB2: { x: 20, y: 70 },
+      OH2: { x: 22, y: 16 },
       Libero: { x: 50, y: 72 },
     },
 
@@ -243,13 +243,13 @@ export default function VolleyballRotationHelper() {
   const [rotation, setRotation] = useState<number>(1);
   const [players, setPlayers] = useState<Players | null>(null);
   const [form, setForm] = useState<Record<RoleKey, string>>({
-    OH1: "",
-    OH2: "",
-    Opp: "",
-    Setter: "",
-    MB1: "",
-    MB2: "",
-    Libero: "",
+    OH1: "OH1",
+    OH2: "OH2",
+    Opp: "Opp",
+    Setter: "Setter",
+    MB1: "MB1",
+    MB2: "MB2",
+    Libero: "Libero",
   });
   const ready = !!players;
 
@@ -286,7 +286,7 @@ export default function VolleyballRotationHelper() {
                   <input
                     className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm outline-none transition-shadow focus:ring-2 focus:ring-indigo-400 shadow-sm"
                     placeholder={`Type ${label} name…`}
-                    value={form[key]}
+                    value={form[key] || key}
                     onChange={(e) =>
                       setForm((f) => ({ ...f, [key]: e.target.value }))
                     }
