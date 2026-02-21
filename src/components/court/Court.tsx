@@ -18,6 +18,7 @@ export function Court({
   movementAnimation,
   focusedRole,
   isDesktop,
+  disablePlayerClicks,
   onCloseSelected,
   insightPanel,
 }: {
@@ -38,6 +39,7 @@ export function Court({
   } | null;
   focusedRole: RoleKey | null;
   isDesktop: boolean;
+  disablePlayerClicks: boolean;
   onCloseSelected: () => void;
   insightPanel: React.ReactNode;
 }) {
@@ -117,7 +119,7 @@ export function Court({
 
   return (
     <div className="mx-auto w-full max-w-[420px]">
-      <div className="court relative aspect-[1/1.1] w-full overflow-hidden rounded-2xl border border-zinc-300 bg-blue-100 shadow-inner">
+      <div className="court relative aspect-[1/1.1] w-full overflow-visible rounded-2xl border border-zinc-300 bg-blue-100 shadow-inner">
         <div className="absolute left-0 right-0 top-[8%] h-1 bg-zinc-400/70" />
         <div className="absolute left-0 right-0 top-[36%] h-0.5 bg-zinc-400/40" />
         <div className="absolute bottom-[8%] left-0 right-0 h-0.5 bg-zinc-400/40" />
@@ -166,7 +168,7 @@ export function Court({
           }
 
           const { x, y } = role === "Libero" && liberoActive ? coords[liberoReplaces()] : coords[role];
-          const isReceiveClickable = tab === "receive";
+          const isReceiveClickable = tab === "receive" && !disablePlayerClicks;
           const isSelected = selectedToken?.role === role;
           const isDimmed = tab === "receive" && focusedRole !== null && focusedRole !== role;
 
@@ -180,6 +182,7 @@ export function Court({
                 transform: "translate(-50%, -50%)",
               }}
               className="absolute transition-all duration-[2500ms] ease-out"
+              disabled={!isReceiveClickable}
               onClick={() => {
                 if (!isReceiveClickable) return;
                 choosePlayer({ role, name: players[role], x, y });
@@ -197,22 +200,30 @@ export function Court({
         })}
 
         {tab === "receive" && isDesktop && selectedToken && (
-          <div
-            className="absolute z-[70] w-[300px] max-w-[85vw] -translate-x-1/2 rounded-2xl border border-zinc-200 bg-white/95 p-4 text-left shadow-2xl backdrop-blur"
-            style={{
-              left: `${Math.min(86, Math.max(14, selectedToken.x))}%`,
-              top: `${Math.min(85, Math.max(14, selectedToken.y - 18))}%`,
-            }}
-          >
+          <>
             <button
               type="button"
+              aria-label="Close player details"
+              className="fixed inset-0 z-[110] cursor-default"
               onClick={onCloseSelected}
-              className="absolute right-2 top-2 rounded-md px-2 py-1 text-xs font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700"
+            />
+            <div
+              className="absolute z-[120] w-[300px] max-w-[85vw] -translate-x-1/2 rounded-2xl border border-zinc-200 bg-white/95 p-4 text-left shadow-2xl backdrop-blur"
+              style={{
+                left: `${Math.min(86, Math.max(14, selectedToken.x))}%`,
+                top: `${Math.min(85, Math.max(14, selectedToken.y - 18))}%`,
+              }}
             >
-              Close
-            </button>
-            {insightPanel}
-          </div>
+              <button
+                type="button"
+                onClick={onCloseSelected}
+                className="absolute right-2 top-2 rounded-md px-2 py-1 text-xs font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700"
+              >
+                Close
+              </button>
+              {insightPanel}
+            </div>
+          </>
         )}
       </div>
     </div>

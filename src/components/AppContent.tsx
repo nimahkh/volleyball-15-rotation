@@ -1,7 +1,9 @@
 import { ROLES, type TabKey } from "../constants/roles";
 import { Court } from "./court/Court";
+import { ChipOnboarding } from "./onboarding/ChipOnboarding";
 import { MobileBottomSheet } from "./receive/MobileBottomSheet";
 import { PlayerInsightChooser } from "./receive/PlayerInsightChooser";
+import { useChipOnboarding } from "../hooks/useChipOnboarding";
 import { useLineupForm } from "../hooks/useLineupForm";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { usePlaybackControls } from "../hooks/usePlaybackControls";
@@ -47,6 +49,8 @@ export function AppContent() {
 
   const ready = !!players;
   const phaseText = receivePhase === "before" ? "Before Play" : "After Play";
+  const { isOpen: showChipOnboarding, close: closeChipOnboarding } =
+    useChipOnboarding(ready && tab === "receive");
 
   const insightPanel =
     selectedToken && tab === "receive" ? (
@@ -177,6 +181,7 @@ export function AppContent() {
                 movementAnimation={movementAnimation}
                 focusedRole={focusedRole}
                 isDesktop={isDesktop}
+                disablePlayerClicks={isPlaying}
                 onCloseSelected={closeInsights}
                 insightPanel={insightPanel}
               />
@@ -223,6 +228,8 @@ export function AppContent() {
           </span>
         </footer>
       </div>
+
+      {showChipOnboarding && <ChipOnboarding onClose={closeChipOnboarding} />}
     </div>
   );
 }
