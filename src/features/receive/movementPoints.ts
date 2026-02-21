@@ -1,0 +1,30 @@
+import type { Point } from "../../constants/roles";
+
+export const MOVEMENT_POINTS = {
+  OH1_BEFORE: { x: 20, y: 40 },
+  OH1_AFTER: { x: 26, y: 54 },
+  OH2_BEFORE: { x: 80, y: 40 },
+  OH2_AFTER: { x: 72, y: 54 },
+  OPP_BEFORE: { x: 80, y: 42 },
+  OPP_AFTER: { x: 78, y: 58 },
+  SETTER_BEFORE: { x: 66, y: 26 },
+  SETTER_AFTER: { x: 70, y: 42 },
+  MB1_BEFORE: { x: 52, y: 35 },
+  MB1_AFTER: { x: 58, y: 46 },
+  MB2_BEFORE: { x: 48, y: 35 },
+  MB2_AFTER: { x: 42, y: 46 },
+  LIBERO_BEFORE: { x: 50, y: 70 },
+  LIBERO_AFTER: { x: 50, y: 62 },
+
+  CENTER_BACK: { x: 50, y: 80 },
+  CENTER_MID_BACK: { x: 50, y: 70 },
+  LEFT_ATTACK: { x: 10, y: 40 },
+  RIGHT_ATTACK: { x: 90, y: 40 },
+  LEFT_BACK: { x: 20, y: 70 },
+  RIGHT_BACK: { x: 80, y: 70 },
+  LEFT_BACK_INNER: { x: 25, y: 70 },
+  CENTER_MID: { x: 50, y: 60 },
+  SETTER_SHORT_RIGHT: { x: 60, y: 15 },
+  SETTER_RIGHT_20: { x: 70, y: 20 },
+  MIDDLE_APPROACH: { x: 50, y: 40 },
+} as const satisfies Record<string, Point>;
