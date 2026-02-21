@@ -22,7 +22,7 @@ export function OptionChooser({
               : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
           }`}
         >
-          Player Zone
+          Defense Zone
         </button>
         <button
           type="button"
@@ -33,7 +33,7 @@ export function OptionChooser({
               : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
           }`}
         >
-          Player Movement
+          Next Movement
         </button>
       </div>
     </div>

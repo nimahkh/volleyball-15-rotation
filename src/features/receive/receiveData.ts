@@ -1,4 +1,6 @@
 import type { Point, ReceivePhase, RoleKey } from "../../constants/roles";
+import { MOVEMENT_POINTS } from "./movementPoints";
+import { ZONE_AREAS } from "./zoneAreas";
 
 export type RoleInsightBlock = {
   primary: string;
@@ -472,32 +474,32 @@ export const RECEIVE_MOVEMENT_TARGETS: Record<
   Record<ReceivePhase, Point>
 > = {
   OH1: {
-    before: { x: 20, y: 40 },
-    after: { x: 26, y: 54 },
+    before: MOVEMENT_POINTS.OH1_BEFORE,
+    after: MOVEMENT_POINTS.OH1_AFTER,
   },
   OH2: {
-    before: { x: 80, y: 40 },
-    after: { x: 72, y: 54 },
+    before: MOVEMENT_POINTS.OH2_BEFORE,
+    after: MOVEMENT_POINTS.OH2_AFTER,
   },
   Opp: {
-    before: { x: 80, y: 42 },
-    after: { x: 78, y: 58 },
+    before: MOVEMENT_POINTS.OPP_BEFORE,
+    after: MOVEMENT_POINTS.OPP_AFTER,
   },
   Setter: {
-    before: { x: 66, y: 26 },
-    after: { x: 70, y: 42 },
+    before: MOVEMENT_POINTS.SETTER_BEFORE,
+    after: MOVEMENT_POINTS.SETTER_AFTER,
   },
   MB1: {
-    before: { x: 52, y: 35 },
-    after: { x: 58, y: 46 },
+    before: MOVEMENT_POINTS.MB1_BEFORE,
+    after: MOVEMENT_POINTS.MB1_AFTER,
   },
   MB2: {
-    before: { x: 48, y: 35 },
-    after: { x: 42, y: 46 },
+    before: MOVEMENT_POINTS.MB2_BEFORE,
+    after: MOVEMENT_POINTS.MB2_AFTER,
   },
   Libero: {
-    before: { x: 50, y: 70 },
-    after: { x: 50, y: 62 },
+    before: MOVEMENT_POINTS.LIBERO_BEFORE,
+    after: MOVEMENT_POINTS.LIBERO_AFTER,
   },
 };
 
@@ -507,232 +509,302 @@ export const RECEIVE_ROTATION_OVERRIDES: Partial<
   1: {
     MB2: {
       zone: {
-        before: {
-          x: 40,
-          y: 30,
-          width: 50,
-          height: 20,
-          label: "Position 3",
-        },
-        after: {
-          x: 50,
-          y: 10,
-          width: 80,
-          height: 10,
-          label: "Net",
-        },
+        before: ZONE_AREAS.POSITION_3,
+        after: ZONE_AREAS.FULL_NET,
       },
       movement: {
-        before: { x: 50, y: 40 },
+        before: MOVEMENT_POINTS.MIDDLE_APPROACH,
       },
     },
     OH2: {
       zone: {
-        before: {
-          x: 20,
-          y: 68,
-          width: 28,
-          height: 50,
-          label: "Position 5 + below MB",
-        },
-        after: {
-          x: 50,
-          y: 70,
-          width: 54,
-          height: 50,
-          label: "End line + full 6",
-        },
+        before: ZONE_AREAS.POSITION_5_BELOW_MB,
+        after: ZONE_AREAS.END_LINE_FULL_6_WIDE,
       },
       movement: {
-        before: { x: 50, y: 80 },
-        after: { x: 50, y: 70 },
+        before: MOVEMENT_POINTS.CENTER_BACK,
+        after: MOVEMENT_POINTS.CENTER_MID_BACK,
       },
     },
     OH1: {
       zone: {
-        before: {
-          x: 78,
-          y: 50,
-          width: 24,
-          height: 52,
-          label: "Positions 2 and 1",
-        },
-        after: {
-          x: 80,
-          y: 10,
-          width: 40,
-          height: 10,
-          label: "Net",
-        },
+        before: ZONE_AREAS.POSITIONS_2_1,
+        after: ZONE_AREAS.NET,
       },
       movement: {
-        before: { x: 90, y: 40 },
-        after: { x: 90, y: 40 },
+        before: MOVEMENT_POINTS.RIGHT_ATTACK,
+        after: MOVEMENT_POINTS.RIGHT_ATTACK,
       },
     },
     Setter: {
       zone: {
-        after: {
-          x: 78,
-          y: 50,
-          width: 24,
-          height: 52,
-          label: "Positions 2 and 1",
-        },
+        after: ZONE_AREAS.POSITIONS_2_1,
       },
       movement: {
-        after: { x: 60, y: 15 },
+        after: MOVEMENT_POINTS.SETTER_SHORT_RIGHT,
       },
     },
     Opp: {
       zone: {
-        before: {
-          x: 20,
-          y: 20,
-          width: 24,
-          height: 24,
-          label: "Position 4",
-        },
-        after: {
-          x: 30,
-          y: 10,
-          width: 40,
-          height: 10,
-          label: "Net",
-        },
+        before: ZONE_AREAS.POSITION_4,
+        after: ZONE_AREAS.LEFT_NET,
       },
       movement: {
-        before: { x: 10, y: 40 },
-        after: { x: 10, y: 40 },
+        before: MOVEMENT_POINTS.LEFT_ATTACK,
+        after: MOVEMENT_POINTS.LEFT_ATTACK,
       },
     },
     Libero: {
       zone: {
-        before: {
-          x: 50,
-          y: 70,
-          width: 54,
-          height: 50,
-          label: "End line + full 6",
-        },
-        after: {
-          x: 20,
-          y: 68,
-          width: 28,
-          height: 50,
-          label: "Position 5 + below MB",
-        },
+        before: ZONE_AREAS.END_LINE_FULL_6_WIDE,
+        after: ZONE_AREAS.POSITION_5_BELOW_MB_ALT,
       },
       movement: {
-        before: { x: 20, y: 70 },
-        after: { x: 20, y: 70 },
+        before: MOVEMENT_POINTS.LEFT_BACK,
+        after: MOVEMENT_POINTS.LEFT_BACK,
       },
     },
   },
   2: {
     OH2: {
       zone: {
-        before: {
-          x: 20,
-          y: 50,
-          width: 24,
-          height: 52,
-          label: "Positions 2 and 1",
-        },
-        after: {
-          x: 30,
-          y: 10,
-          width: 40,
-          height: 10,
-          label: "Net",
-        },
+        before: ZONE_AREAS.POSITIONS_4_5,
+        after: ZONE_AREAS.LEFT_NET,
       },
       movement: {
-        before: { x: 10, y: 40 },
-        after: { x: 10, y: 40 },
+        before: MOVEMENT_POINTS.LEFT_ATTACK,
+        after: MOVEMENT_POINTS.LEFT_ATTACK,
       },
     },
     MB2: {
       zone: {
-        after: {
-          x: 50,
-          y: 10,
-          width: 80,
-          height: 10,
-          label: "Net",
-        },
+        after: ZONE_AREAS.FULL_NET,
       },
     },
     OH1: {
       zone: {
-        before: {
-          x: 78,
-          y: 50,
-          width: 24,
-          height: 52,
-          label: "Position 1",
-        },
-        after: {
-          x: 50,
-          y: 70,
-          width: 60,
-          height: 30,
-          label: "End line + full 6",
-        },
+        before: ZONE_AREAS.POSITION_1,
+        after: ZONE_AREAS.END_LINE_FULL_6_MEDIUM,
       },
       movement: {
-        before: { x: 50, y: 60 },
-        after: { x: 50, y: 60 },
+        before: MOVEMENT_POINTS.CENTER_MID,
+        after: MOVEMENT_POINTS.CENTER_MID,
       },
     },
     Libero: {
       zone: {
-        before: {
-          x: 50,
-          y: 70,
-          width: 54,
-          height: 50,
-          label: "End line + full 6",
-        },
-        after: {
-          x: 20,
-          y: 68,
-          width: 28,
-          height: 50,
-          label: "Position 5 + below MB",
-        },
+        before: ZONE_AREAS.END_LINE_FULL_6_WIDE,
+        after: ZONE_AREAS.POSITION_5_BELOW_MB_ALT,
       },
       movement: {
-        before: { x: 20, y: 70 },
-        after: { x: 25, y: 70 },
+        before: MOVEMENT_POINTS.LEFT_BACK,
+        after: MOVEMENT_POINTS.LEFT_BACK_INNER,
       },
     },
     Opp: {
       zone: {
-        after: {
-          x: 80,
-          y: 10,
-          width: 40,
-          height: 10,
-          label: "Net",
-        },
+        after: ZONE_AREAS.RIGHT_NET,
       },
       movement: {
-        after: { x: 90, y: 40 },
+        after: MOVEMENT_POINTS.RIGHT_ATTACK,
       },
     },
     Setter: {
       zone: {
-        after: {
-          x: 78,
-          y: 50,
-          width: 24,
-          height: 52,
-          label: "Position 1",
-        },
+        after: ZONE_AREAS.POSITION_1,
       },
       movement: {
-        after: { x: 70, y: 20 },
+        after: MOVEMENT_POINTS.SETTER_RIGHT_20,
+      },
+    },
+  },
+  3: {
+    Opp: {
+      movement: {
+        after: MOVEMENT_POINTS.RIGHT_ATTACK,
+      },
+      zone: {
+        after: ZONE_AREAS.RIGHT_NET,
+      },
+    },
+    MB1: {
+      zone: {
+        after: ZONE_AREAS.FULL_NET,
+      },
+    },
+    OH2: {
+      movement: {
+        before: MOVEMENT_POINTS.LEFT_ATTACK,
+        after: MOVEMENT_POINTS.LEFT_ATTACK,
+      },
+      zone: {
+        before: ZONE_AREAS.POSITION_5_BELOW_MB,
+        after: ZONE_AREAS.LEFT_NET,
+      },
+    },
+    OH1: {
+      movement: {
+        before: MOVEMENT_POINTS.CENTER_MID_BACK,
+        after: MOVEMENT_POINTS.CENTER_MID_BACK,
+      },
+      zone: {
+        before: ZONE_AREAS.END_LINE_FULL_6_WIDE,
+        after: ZONE_AREAS.END_LINE_FULL_6_WIDE,
+      },
+    },
+    Libero: {
+      movement: {
+        before: MOVEMENT_POINTS.LEFT_BACK,
+        after: MOVEMENT_POINTS.LEFT_BACK,
+      },
+      zone: {
+        before: ZONE_AREAS.POSITIONS_2_1,
+        after: ZONE_AREAS.POSITION_5_BELOW_MB,
+      },
+    },
+    Setter: {
+      movement: {
+        after: MOVEMENT_POINTS.SETTER_RIGHT_20,
+      },
+      zone: {
+        after: ZONE_AREAS.POSITION_1,
+      },
+    },
+  },
+  4: {
+    OH2: {
+      movement: {
+        before: MOVEMENT_POINTS.LEFT_ATTACK,
+        after: MOVEMENT_POINTS.LEFT_ATTACK,
+      },
+      zone: {
+        before: ZONE_AREAS.POSITION_5_BELOW_MB,
+        after: ZONE_AREAS.LEFT_NET,
+      },
+    },
+    Libero: {
+      movement: {
+        before: MOVEMENT_POINTS.LEFT_BACK,
+        after: MOVEMENT_POINTS.LEFT_BACK,
+      },
+      zone: {
+        before: ZONE_AREAS.POSITIONS_2_1,
+        after: ZONE_AREAS.POSITION_5_BELOW_MB,
+      },
+    },
+    OH1: {
+      movement: {
+        before: MOVEMENT_POINTS.CENTER_MID_BACK,
+        after: MOVEMENT_POINTS.CENTER_MID_BACK,
+      },
+      zone: {
+        before: ZONE_AREAS.END_LINE_FULL_6_WIDE,
+        after: ZONE_AREAS.END_LINE_FULL_6_WIDE,
+      },
+    },
+    Setter: {
+      zone: {
+        after: ZONE_AREAS.RIGHT_NET,
+      },
+      movement: {
+        after: MOVEMENT_POINTS.SETTER_RIGHT_20,
+      },
+    },
+    MB1: {
+      zone: {
+        after: ZONE_AREAS.FULL_NET,
+      },
+    },
+  },
+  5: {
+    OH2: {
+      movement: {
+        before: MOVEMENT_POINTS.CENTER_MID_BACK,
+        after: MOVEMENT_POINTS.CENTER_MID_BACK,
+      },
+      zone: {
+        before: ZONE_AREAS.POSITIONS_2_1,
+        after: ZONE_AREAS.END_LINE_FULL_6_WIDE,
+      },
+    },
+    Libero: {
+      movement: {
+        before: MOVEMENT_POINTS.LEFT_BACK,
+        after: MOVEMENT_POINTS.LEFT_BACK,
+      },
+      zone: {
+        before: ZONE_AREAS.END_LINE_FULL_6_WIDE,
+        after: ZONE_AREAS.POSITION_5_BELOW_MB,
+      },
+    },
+    OH1: {
+      movement: {
+        before: MOVEMENT_POINTS.LEFT_ATTACK,
+        after: MOVEMENT_POINTS.LEFT_ATTACK,
+      },
+      zone: {
+        before: ZONE_AREAS.POSITION_5_4,
+        after: ZONE_AREAS.LEFT_NET,
+      },
+    },
+    Setter: {
+      zone: {
+        after: ZONE_AREAS.RIGHT_NET,
+      },
+      movement: {
+        after: MOVEMENT_POINTS.SETTER_RIGHT_20,
+      },
+    },
+    MB1: {
+      zone: {
+        after: ZONE_AREAS.FULL_NET,
+      },
+    },
+  },
+  6: {
+    OH2: {
+      movement: {
+        before: MOVEMENT_POINTS.CENTER_MID_BACK,
+        after: MOVEMENT_POINTS.CENTER_MID_BACK,
+      },
+      zone: {
+        before: ZONE_AREAS.END_LINE_FULL_6_WIDE,
+        after: ZONE_AREAS.END_LINE_FULL_6_WIDE,
+      },
+    },
+    Libero: {
+      movement: {
+        before: MOVEMENT_POINTS.LEFT_BACK,
+        after: MOVEMENT_POINTS.LEFT_BACK,
+      },
+      zone: {
+        before: ZONE_AREAS.POSITIONS_2_1,
+        after: ZONE_AREAS.POSITION_5_4,
+      },
+    },
+    Setter: {
+      movement: {
+        after: MOVEMENT_POINTS.SETTER_RIGHT_20,
+      },
+      zone: {
+        after: ZONE_AREAS.RIGHT_NET,
+      },
+    },
+    MB2: {
+      movement: {
+        after: MOVEMENT_POINTS.MB1_AFTER,
+      },
+      zone: {
+        after: ZONE_AREAS.FULL_NET,
+      },
+    },
+    OH1: {
+      movement: {
+        after: MOVEMENT_POINTS.LEFT_ATTACK,
+      },
+      zone: {
+        before: ZONE_AREAS.POSITION_5_BELOW_MB,
+        after: ZONE_AREAS.LEFT_NET,
       },
     },
   },
