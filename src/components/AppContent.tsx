@@ -9,8 +9,10 @@ import { useMediaQuery } from "../hooks/useMediaQuery";
 import { usePlaybackControls } from "../hooks/usePlaybackControls";
 import { useReceiveModeInsights } from "../hooks/useReceiveModeInsights";
 import { Rotation } from "../providers/Rotation";
+import { useTheme } from "../providers/useTheme";
 
 export function AppContent() {
+  const { theme, toggleTheme } = useTheme();
   const {
     tab,
     setTab,
@@ -48,6 +50,7 @@ export function AppContent() {
   );
 
   const ready = !!players;
+  const isDark = theme === "dark";
   const phaseText = receivePhase === "before" ? "Before Play" : "After Play";
   const { isOpen: showChipOnboarding, close: closeChipOnboarding } =
     useChipOnboarding(ready && tab === "receive");
@@ -63,28 +66,68 @@ export function AppContent() {
     ) : null;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-100 sm:p-4">
+    <div
+      className={`flex min-h-screen items-center justify-center transition-colors sm:p-4 ${
+        isDark
+          ? "bg-[radial-gradient(circle_at_top,_rgba(37,99,235,0.18),_transparent_32%),linear-gradient(180deg,_#09090b,_#111827)] text-zinc-100"
+          : "bg-zinc-100 text-zinc-900"
+      }`}
+    >
       <div className="mx-auto w-full max-w-[560px] px-4 py-6">
-        <h1 className="mb-4 text-center text-xl font-extrabold text-zinc-900">
-          Volleyball 5-1 Rotation Helper
-        </h1>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h1
+            className={`text-xl font-extrabold ${
+              isDark ? "text-white" : "text-zinc-900"
+            }`}
+          >
+            Volleyball 5-1 Rotation Helper
+          </h1>
+          <button
+            type="button"
+            aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
+            onClick={toggleTheme}
+            className={`rounded-full border px-3 py-2 text-xs font-semibold transition-colors ${
+              isDark
+                ? "border-zinc-700 bg-zinc-900/70 text-zinc-100 hover:bg-zinc-800"
+                : "border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-100"
+            }`}
+          >
+            {isDark ? "Light mode" : "Dark mode"}
+          </button>
+        </div>
 
         {!ready && (
           <form
             onSubmit={submitForm}
-            className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm"
+            className={`space-y-4 rounded-2xl border p-4 shadow-sm transition-colors ${
+              isDark
+                ? "border-zinc-800 bg-zinc-900/80 shadow-black/30"
+                : "border-zinc-200 bg-white"
+            }`}
           >
-            <p className="text-sm text-zinc-600">
+            <p
+              className={`text-sm ${isDark ? "text-zinc-400" : "text-zinc-600"}`}
+            >
               Enter your lineup. Long names are truncated automatically.
             </p>
             <div className="grid grid-cols-1 gap-3">
               {ROLES.map(({ key, label }) => (
                 <div key={key} className="space-y-1">
-                  <label className="text-sm font-medium text-zinc-700">
+                  <label
+                    htmlFor={`lineup-${key}`}
+                    className={`text-sm font-medium ${
+                      isDark ? "text-zinc-200" : "text-zinc-700"
+                    }`}
+                  >
                     {label}
                   </label>
                   <input
-                    className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm shadow-sm outline-none transition-shadow focus:ring-2 focus:ring-indigo-400"
+                    id={`lineup-${key}`}
+                    className={`w-full rounded-xl border px-3 py-2 text-sm shadow-sm outline-none transition-[box-shadow,border-color,background-color,color] focus:ring-2 focus:ring-indigo-400 ${
+                      isDark
+                        ? "border-zinc-700 bg-zinc-950 text-zinc-100 placeholder:text-zinc-500"
+                        : "border-zinc-300 bg-white text-zinc-900"
+                    }`}
                     placeholder={`Type ${label} name...`}
                     value={form[key]}
                     onChange={(event) =>
@@ -107,7 +150,13 @@ export function AppContent() {
 
         {ready && players && (
           <div className="mt-4 space-y-4">
-            <div className="rounded-xl border border-zinc-200 bg-white p-2 shadow-sm sm:flex sm:items-center sm:justify-between">
+            <div
+              className={`rounded-xl border p-2 shadow-sm sm:flex sm:items-center sm:justify-between ${
+                isDark
+                  ? "border-zinc-800 bg-zinc-900/80 shadow-black/30"
+                  : "border-zinc-200 bg-white"
+              }`}
+            >
               <div
                 className="no-scrollbar flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2 sm:pb-0"
                 style={{ WebkitOverflowScrolling: "touch" }}
@@ -122,8 +171,10 @@ export function AppContent() {
                     onClick={() => setTab(key as TabKey)}
                     className={`shrink-0 snap-center rounded-full border px-4 py-2 text-sm font-semibold transition-all sm:text-base ${
                       tab === key
-                        ? "bg-blue-600 text-white shadow-md"
-                        : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+                        ? "border-blue-500 bg-blue-600 text-white shadow-md"
+                        : isDark
+                          ? "border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+                          : "border-zinc-200 bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
                     }`}
                   >
                     {label}
@@ -131,13 +182,21 @@ export function AppContent() {
                 ))}
               </div>
 
-              <div className="mt-2 text-center text-sm font-semibold text-zinc-700 sm:mt-0 sm:text-right sm:text-base">
+              <div
+                className={`mt-2 text-center text-sm font-semibold sm:mt-0 sm:text-right sm:text-base ${
+                  isDark ? "text-zinc-300" : "text-zinc-700"
+                }`}
+              >
                 Rotation <span className="text-indigo-700">{rotation}</span>
               </div>
             </div>
 
             {tab === "receive" && (
-              <div className="mt-0 flex flex-wrap items-center justify-center gap-2 rounded-md bg-white p-2 shadow-md">
+              <div
+                className={`mt-0 flex flex-wrap items-center justify-center gap-2 rounded-md p-2 shadow-md ${
+                  isDark ? "bg-zinc-900/80 shadow-black/30" : "bg-white"
+                }`}
+              >
                 <button
                   onClick={playDemo}
                   disabled={isPlaying || resetPosition}
@@ -162,13 +221,25 @@ export function AppContent() {
                   {resetPosition ? "Resetting..." : "Reset"}
                 </button>
 
-                <div className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                <div
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    isDark
+                      ? "bg-emerald-950/60 text-emerald-300"
+                      : "bg-emerald-50 text-emerald-700"
+                  }`}
+                >
                   {phaseText}
                 </div>
               </div>
             )}
 
-            <div className="rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm">
+            <div
+              className={`rounded-2xl border p-3 shadow-sm ${
+                isDark
+                  ? "border-zinc-800 bg-zinc-900/80 shadow-black/30"
+                  : "border-zinc-200 bg-white"
+              }`}
+            >
               <Court
                 tab={tab}
                 rotation={rotation}
@@ -201,11 +272,19 @@ export function AppContent() {
             <div className="flex items-center justify-between gap-2">
               <button
                 onClick={prevRotation}
-                className="rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700"
+                className={`rounded-full border px-4 py-2 text-sm font-semibold ${
+                  isDark
+                    ? "border-zinc-700 bg-zinc-900 text-zinc-200"
+                    : "border-zinc-300 bg-white text-zinc-700"
+                }`}
               >
                 Prev
               </button>
-              <div className="text-center text-xs text-zinc-500">
+              <div
+                className={`text-center text-xs ${
+                  isDark ? "text-zinc-400" : "text-zinc-500"
+                }`}
+              >
                 Pick a player, choose zone or movement, then watch the
                 animation.
               </div>
@@ -219,7 +298,9 @@ export function AppContent() {
           </div>
         )}
 
-        <footer className="mt-6 text-center text-xs text-zinc-500">
+        <footer
+          className={`mt-6 text-center text-xs ${isDark ? "text-zinc-500" : "text-zinc-500"}`}
+        >
           Made with ❤️ for Volleyball lovers
           <br />
           Author:{" "}
