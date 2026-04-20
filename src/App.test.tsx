@@ -54,4 +54,28 @@ describe("App", () => {
       screen.getByText((_, element) => element?.textContent === "Rotation 1"),
     ).toBeInTheDocument();
   });
+
+  it("opens the coach board as a separate page", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /open coach board/i }));
+
+    expect(
+      screen.getByRole("heading", { name: /strategy court/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(/coach strategy volleyball court/i),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /hide opponent/i })).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: /back to rotation helper/i }),
+    );
+
+    expect(
+      screen.getByRole("heading", { name: /volleyball 5-1 rotation helper/i }),
+    ).toBeInTheDocument();
+  });
 });

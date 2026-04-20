@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { ROLES, type TabKey } from "../constants/roles";
+import { CoachStrategyPage } from "./coach/CoachStrategyPage";
 import { Court } from "./court/Court";
 import { ChipOnboarding } from "./onboarding/ChipOnboarding";
 import { MobileBottomSheet } from "./receive/MobileBottomSheet";
@@ -13,6 +15,7 @@ import { useTheme } from "../providers/useTheme";
 
 export function AppContent() {
   const { theme, toggleTheme } = useTheme();
+  const [page, setPage] = useState<"rotation" | "coach">("rotation");
   const {
     tab,
     setTab,
@@ -65,6 +68,10 @@ export function AppContent() {
       />
     ) : null;
 
+  if (page === "coach") {
+    return <CoachStrategyPage isDark={isDark} onBack={() => setPage("rotation")} />;
+  }
+
   return (
     <div
       className={`flex min-h-screen items-center justify-center transition-colors sm:p-4 ${
@@ -95,6 +102,29 @@ export function AppContent() {
             {isDark ? "Light mode" : "Dark mode"}
           </button>
         </div>
+
+        <button
+          type="button"
+          aria-label="Open Coach Board"
+          onClick={() => setPage("coach")}
+          className={`mb-4 w-full rounded-3xl border px-4 py-3 text-left shadow-sm transition-transform hover:-translate-y-0.5 ${
+            isDark
+              ? "border-sky-500/30 bg-sky-500/10 text-sky-100 shadow-black/20"
+              : "border-sky-100 bg-white text-slate-900 shadow-sky-100"
+          }`}
+        >
+          <span className="block text-[11px] font-black uppercase tracking-[0.24em] text-sky-500">
+            New
+          </span>
+          <span className="block text-base font-black">Open Coach Board</span>
+          <span
+            className={`block text-xs ${
+              isDark ? "text-slate-400" : "text-slate-500"
+            }`}
+          >
+            Build tactical setups with movable players and court annotations.
+          </span>
+        </button>
 
         {!ready && (
           <form
