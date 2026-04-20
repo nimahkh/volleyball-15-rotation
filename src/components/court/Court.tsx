@@ -119,12 +119,15 @@ export function Court({
 
   return (
     <div className="mx-auto w-full max-w-[420px]">
-      <div className="court relative aspect-[1/1.1] w-full overflow-visible rounded-2xl border border-zinc-300 bg-blue-100 shadow-inner">
-        <div className="absolute left-0 right-0 top-[8%] h-1 bg-zinc-400/70" />
-        <div className="absolute left-0 right-0 top-[36%] h-0.5 bg-zinc-400/40" />
-        <div className="absolute bottom-[8%] left-0 right-0 h-0.5 bg-zinc-400/40" />
-        <div className="absolute bottom-0 left-[8%] top-0 w-0.5 bg-zinc-400/40" />
-        <div className="absolute bottom-0 right-[8%] top-0 w-0.5 bg-zinc-400/40" />
+      <div
+        aria-label="Rotation volleyball court"
+        className="court relative aspect-[1/1.1] w-full overflow-visible rounded-[2rem] border-4 border-sky-900/70 bg-[linear-gradient(180deg,_#fde68a_0%,_#fef3c7_55%,_#fde68a_100%)] shadow-inner"
+      >
+        <div className="absolute left-0 right-0 top-[8%] h-1 bg-sky-950/60" />
+        <div className="absolute left-0 right-0 top-[36%] h-0.5 bg-sky-950/30" />
+        <div className="absolute bottom-[8%] left-0 right-0 h-0.5 bg-sky-950/35" />
+        <div className="absolute bottom-0 left-[8%] top-0 w-0.5 bg-sky-950/20" />
+        <div className="absolute bottom-0 right-[8%] top-0 w-0.5 bg-sky-950/20" />
 
         {tab === "receive" && zoneAnimation && (
           <div

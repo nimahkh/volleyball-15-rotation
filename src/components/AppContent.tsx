@@ -69,7 +69,9 @@ export function AppContent() {
     ) : null;
 
   if (page === "coach") {
-    return <CoachStrategyPage isDark={isDark} onBack={() => setPage("rotation")} />;
+    return (
+      <CoachStrategyPage isDark={isDark} onBack={() => setPage("rotation")} />
+    );
   }
 
   return (
@@ -99,7 +101,7 @@ export function AppContent() {
                 : "border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-100"
             }`}
           >
-            {isDark ? "Light mode" : "Dark mode"}
+            {isDark ? "Light" : "Dark"}
           </button>
         </div>
 
