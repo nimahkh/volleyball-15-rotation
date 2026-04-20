@@ -13,9 +13,9 @@
     "ux:agent": "node scripts/agent-browser-ux-check.ts"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.17",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "@tailwindcss/vite": "^4.2.3",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
     "tailwindcss": "^4.1.17"
   },
   "devDependencies": {
@@ -24,7 +24,7 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "^24.10.0",
-    "@types/react": "^19.2.2",
+    "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^5.1.0",
     "agent-browser": "^0.26.0",
