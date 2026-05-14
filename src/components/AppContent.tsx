@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ROLES, type TabKey } from "../constants/roles";
 import { CoachStrategyPage } from "./coach/CoachStrategyPage";
 import { Court } from "./court/Court";
@@ -13,9 +13,13 @@ import { useReceiveModeInsights } from "../hooks/useReceiveModeInsights";
 import { Rotation } from "../providers/Rotation";
 import { useTheme } from "../providers/useTheme";
 
+function getCurrentPage() {
+  return window.location.pathname.startsWith("/coach") ? "coach" : "rotation";
+}
+
 export function AppContent() {
   const { theme, toggleTheme } = useTheme();
-  const [page, setPage] = useState<"rotation" | "coach">("rotation");
+  const [page, setPage] = useState<"rotation" | "coach">(getCurrentPage);
   const {
     tab,
     setTab,
@@ -58,6 +62,12 @@ export function AppContent() {
   const { isOpen: showChipOnboarding, close: closeChipOnboarding } =
     useChipOnboarding(ready && tab === "receive");
 
+  useEffect(() => {
+    const onPopState = () => setPage(getCurrentPage());
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
   const insightPanel =
     selectedToken && tab === "receive" ? (
       <PlayerInsightChooser
@@ -70,7 +80,16 @@ export function AppContent() {
 
   if (page === "coach") {
     return (
-      <CoachStrategyPage isDark={isDark} onBack={() => setPage("rotation")} />
+      <CoachStrategyPage
+        isDark={isDark}
+        onBack={() => {
+          const url = new URL(window.location.href);
+          url.pathname = "/";
+          url.searchParams.delete("drill");
+          window.history.pushState({}, "", url.toString());
+          setPage("rotation");
+        }}
+      />
     );
   }
 
@@ -108,7 +127,12 @@ export function AppContent() {
         <button
           type="button"
           aria-label="Open Coach Board"
-          onClick={() => setPage("coach")}
+          onClick={() => {
+            const url = new URL(window.location.href);
+            url.pathname = "/coach";
+            window.history.pushState({}, "", url.toString());
+            setPage("coach");
+          }}
           className={`mb-4 w-full rounded-3xl border px-4 py-3 text-left shadow-sm transition-transform hover:-translate-y-0.5 ${
             isDark
               ? "border-sky-500/30 bg-sky-500/10 text-sky-100 shadow-black/20"
