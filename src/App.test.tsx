@@ -125,6 +125,8 @@ describe("App", () => {
     await user.click(screen.getByRole("button", { name: /open coach board/i }));
     await user.click(screen.getByRole("button", { name: /presets/i }));
     await user.click(screen.getByRole("button", { name: /3-passer w platform angles/i }));
+    expect(screen.queryByText(/drill replay/i)).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /play fullscreen drill/i }));
 
     expect(await screen.findByText(/drill replay/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /back to board/i })).toBeInTheDocument();

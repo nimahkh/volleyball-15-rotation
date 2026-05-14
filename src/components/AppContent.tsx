@@ -5,6 +5,7 @@ import { Court } from "./court/Court";
 import { ChipOnboarding } from "./onboarding/ChipOnboarding";
 import { MobileBottomSheet } from "./receive/MobileBottomSheet";
 import { PlayerInsightChooser } from "./receive/PlayerInsightChooser";
+import { Button } from "./ui/Button";
 import { useChipOnboarding } from "../hooks/useChipOnboarding";
 import { useLineupForm } from "../hooks/useLineupForm";
 import { useMediaQuery } from "../hooks/useMediaQuery";
@@ -110,22 +111,19 @@ export function AppContent() {
           >
             Volleyball 5-1 Rotation Helper
           </h1>
-          <button
-            type="button"
+          <Button
             aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
             onClick={toggleTheme}
-            className={`rounded-full border px-3 py-2 text-xs font-semibold transition-colors ${
-              isDark
-                ? "border-zinc-700 bg-zinc-900/70 text-zinc-100 hover:bg-zinc-800"
-                : "border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-100"
-            }`}
+            isDark={isDark}
+            size="sm"
+            variant="outline"
+            className="rounded-full"
           >
             {isDark ? "Light" : "Dark"}
-          </button>
+          </Button>
         </div>
 
-        <button
-          type="button"
+        <Button
           aria-label="Open Coach Board"
           onClick={() => {
             const url = new URL(window.location.href);
@@ -133,7 +131,9 @@ export function AppContent() {
             window.history.pushState({}, "", url.toString());
             setPage("coach");
           }}
-          className={`mb-4 w-full rounded-3xl border px-4 py-3 text-left shadow-sm transition-transform hover:-translate-y-0.5 ${
+          isDark={isDark}
+          variant="outline"
+          className={`mb-4 w-full rounded-3xl text-left shadow-sm transition-transform hover:-translate-y-0.5 ${
             isDark
               ? "border-sky-500/30 bg-sky-500/10 text-sky-100 shadow-black/20"
               : "border-sky-100 bg-white text-slate-900 shadow-sky-100"
@@ -150,7 +150,7 @@ export function AppContent() {
           >
             Build tactical setups with movable players and court annotations.
           </span>
-        </button>
+        </Button>
 
         {!ready && (
           <form
@@ -197,9 +197,14 @@ export function AppContent() {
               ))}
             </div>
             <div className="flex items-center justify-end pt-2">
-              <button className="rounded-full bg-indigo-600 px-4 py-2 font-semibold text-white shadow hover:shadow-md">
+              <Button
+                type="submit"
+                variant="primary"
+                isDark={isDark}
+                className="rounded-full px-4"
+              >
                 Start
-              </button>
+              </Button>
             </div>
           </form>
         )}
@@ -222,10 +227,12 @@ export function AppContent() {
                   { key: "serve", label: "Serve" },
                   { key: "base", label: "Rotation Position" },
                 ].map(({ key, label }) => (
-                  <button
+                  <Button
                     key={key}
                     onClick={() => setTab(key as TabKey)}
-                    className={`shrink-0 snap-center rounded-full border px-4 py-2 text-sm font-semibold transition-all sm:text-base ${
+                    isDark={isDark}
+                    active={tab === key}
+                    className={`shrink-0 snap-center rounded-full sm:text-base ${
                       tab === key
                         ? "border-blue-500 bg-blue-600 text-white shadow-md"
                         : isDark
@@ -234,7 +241,7 @@ export function AppContent() {
                     }`}
                   >
                     {label}
-                  </button>
+                  </Button>
                 ))}
               </div>
 
@@ -253,29 +260,33 @@ export function AppContent() {
                   isDark ? "bg-zinc-900/80 shadow-black/30" : "bg-white"
                 }`}
               >
-                <button
+                <Button
                   onClick={playDemo}
                   disabled={isPlaying || resetPosition}
-                  className={`rounded-full px-6 py-2 font-semibold text-white shadow ${
+                  isDark={isDark}
+                  variant="primary"
+                  className={`rounded-full px-6 ${
                     isPlaying || resetPosition
                       ? "bg-gray-400"
                       : "bg-yellow-500 hover:bg-yellow-400"
                   }`}
                 >
                   {isPlaying ? "Playing..." : "Play"}
-                </button>
+                </Button>
 
-                <button
+                <Button
                   onClick={handleResetPositions}
                   disabled={resetPosition || isPlaying}
-                  className={`rounded-full px-6 py-2 font-semibold text-white shadow ${
+                  isDark={isDark}
+                  variant="primary"
+                  className={`rounded-full px-6 ${
                     resetPosition || isPlaying
                       ? "bg-gray-400"
                       : "bg-blue-500 hover:bg-blue-400"
                   }`}
                 >
                   {resetPosition ? "Resetting..." : "Reset"}
-                </button>
+                </Button>
 
                 <div
                   className={`rounded-full px-3 py-1 text-xs font-semibold ${
@@ -326,16 +337,14 @@ export function AppContent() {
               )}
 
             <div className="flex items-center justify-between gap-2">
-              <button
+              <Button
                 onClick={prevRotation}
-                className={`rounded-full border px-4 py-2 text-sm font-semibold ${
-                  isDark
-                    ? "border-zinc-700 bg-zinc-900 text-zinc-200"
-                    : "border-zinc-300 bg-white text-zinc-700"
-                }`}
+                isDark={isDark}
+                variant="outline"
+                className="rounded-full px-4"
               >
                 Prev
-              </button>
+              </Button>
               <div
                 className={`text-center text-xs ${
                   isDark ? "text-zinc-400" : "text-zinc-500"
@@ -344,12 +353,14 @@ export function AppContent() {
                 Pick a player, choose zone or movement, then watch the
                 animation.
               </div>
-              <button
+              <Button
                 onClick={nextRotation}
-                className="rounded-full bg-blue-600 px-4 py-2 font-semibold text-white"
+                variant="primary"
+                isDark={isDark}
+                className="rounded-full px-4"
               >
                 Next
-              </button>
+              </Button>
             </div>
           </div>
         )}

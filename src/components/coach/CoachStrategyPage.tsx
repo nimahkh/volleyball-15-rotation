@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { decodeSharedPayload, encodeSharedPayload } from "./drillSharing";
+import { Button } from "../ui/Button";
+import { IconButton } from "../ui/IconButton";
 
 type TeamSide = "team" | "opponent";
 
@@ -738,7 +740,6 @@ export function CoachStrategyPage({
   const stepCounterRef = useRef(1);
   const previewTimerRef = useRef<number | null>(null);
   const stepTransitionRef = useRef<number | null>(null);
-  const presetPlaybackRef = useRef<number | null>(null);
   const [dragState, setDragState] = useState<DragState | null>(null);
   const [drawState, setDrawState] = useState<DrawState | null>(null);
   const [activeChipId, setActiveChipId] = useState<string | null>(null);
@@ -757,6 +758,7 @@ export function CoachStrategyPage({
   const [playbackMode, setPlaybackMode] = useState<PlaybackMode>("inline");
   const [isCinemaMode, setCinemaMode] = useState(false);
   const [isCinemaReplayReady, setCinemaReplayReady] = useState(false);
+  const [shouldHighlightPlay, setShouldHighlightPlay] = useState(false);
   const currentStep = steps.find((step) => step.id === currentStepId) ?? steps[0];
   const chips = currentStep?.chips ?? BASE_CHIPS;
   const drawLines = currentStep?.drawLines ?? [];
@@ -794,9 +796,6 @@ export function CoachStrategyPage({
       stopPlaybackTimer(previewTimerRef);
       if (stepTransitionRef.current) {
         window.clearTimeout(stepTransitionRef.current);
-      }
-      if (presetPlaybackRef.current) {
-        window.clearTimeout(presetPlaybackRef.current);
       }
     };
   }, []);
@@ -989,14 +988,16 @@ export function CoachStrategyPage({
   }
 
   function previewDrill() {
+    setShouldHighlightPlay(false);
     startDrillPlayback("inline");
   }
 
+  function playFullscreenDrill() {
+    setShouldHighlightPlay(false);
+    startDrillPlayback("cinema");
+  }
+
   function closeCinemaMode() {
-    if (presetPlaybackRef.current) {
-      window.clearTimeout(presetPlaybackRef.current);
-      presetPlaybackRef.current = null;
-    }
     stopPlaybackTimer(previewTimerRef);
     setPreviewing(false);
     setCinemaReplayReady(false);
@@ -1004,7 +1005,7 @@ export function CoachStrategyPage({
     setPlaybackMode("inline");
   }
 
-  function applyPreset(preset: DrillPreset, options?: { playCinematic?: boolean }) {
+  function applyPreset(preset: DrillPreset) {
     const nextSteps = preset.steps.map((step) =>
       createStep(step.id, step.title, step.chips, step.drawLines, step.instruction),
     );
@@ -1019,17 +1020,7 @@ export function CoachStrategyPage({
     setDrawState(null);
     setDrawingEnabled(false);
     stepCounterRef.current = nextSteps.length;
-    if (options?.playCinematic) {
-      if (presetPlaybackRef.current) {
-        window.clearTimeout(presetPlaybackRef.current);
-      }
-      setCinemaMode(true);
-      setCinemaReplayReady(false);
-      presetPlaybackRef.current = window.setTimeout(() => {
-        startDrillPlayback("cinema", nextSteps);
-        presetPlaybackRef.current = null;
-      }, 0);
-    }
+    setShouldHighlightPlay(true);
   }
 
   async function shareDrill() {
@@ -1074,6 +1065,11 @@ export function CoachStrategyPage({
     interactive: boolean,
     boardStyle?: React.CSSProperties,
   ) {
+    const isHalfCourtView = !showOpponents;
+    const courtContentClassName = isHalfCourtView
+      ? "absolute inset-x-0 bottom-0 h-[200%]"
+      : "absolute inset-0";
+
     return (
       <div
         ref={interactive ? courtRef : undefined}
@@ -1085,65 +1081,69 @@ export function CoachStrategyPage({
         className={boardClassName}
         style={boardStyle}
       >
-        <div className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 bg-sky-950/60" />
-        <div className="absolute inset-x-0 top-[12%] h-0.5 bg-sky-950/35" />
-        <div className="absolute inset-x-0 top-[38%] h-0.5 bg-sky-950/30" />
-        <div className="absolute inset-x-0 top-[62%] h-0.5 bg-sky-950/30" />
-        <div className="absolute inset-x-0 top-[88%] h-0.5 bg-sky-950/35" />
-        <div className="absolute inset-y-0 left-1/3 w-0.5 bg-sky-950/20" />
-        <div className="absolute inset-y-0 right-1/3 w-0.5 bg-sky-950/20" />
-        <div className="absolute left-3 top-3 rounded-full bg-red-600 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white">
-          Opponent
-        </div>
-        <div className="absolute bottom-3 left-3 rounded-full bg-blue-700 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white">
-          Your team
-        </div>
+        <div className={courtContentClassName}>
+          <div className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 bg-sky-950/60" />
+          <div className="absolute inset-x-0 top-[12%] h-0.5 bg-sky-950/35" />
+          <div className="absolute inset-x-0 top-[38%] h-0.5 bg-sky-950/30" />
+          <div className="absolute inset-x-0 top-[62%] h-0.5 bg-sky-950/30" />
+          <div className="absolute inset-x-0 top-[88%] h-0.5 bg-sky-950/35" />
+          <div className="absolute inset-y-0 left-1/3 w-0.5 bg-sky-950/20" />
+          <div className="absolute inset-y-0 right-1/3 w-0.5 bg-sky-950/20" />
+          {!isHalfCourtView && (
+            <div className="absolute left-3 top-3 rounded-full bg-red-600 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white">
+              Opponent
+            </div>
+          )}
+          <div className="absolute bottom-3 left-3 rounded-full bg-blue-700 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white">
+            Your team
+          </div>
 
-        <svg
-          className="pointer-events-none absolute inset-0 h-full w-full"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-        >
-          {drawLines.map((line) => (
-            <polyline
-              key={line.id}
-              fill="none"
-              points={line.points
-                .map((point) => `${point.x},${point.y}`)
-                .join(" ")}
-              stroke={line.side === "team" ? "#2563eb" : "#dc2626"}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="1.2"
-              vectorEffect="non-scaling-stroke"
-            />
-          ))}
-        </svg>
-
-        {visibleChips.map((chip) => (
-          <button
-            type="button"
-            key={chip.id}
-            aria-label={`${chip.detail} ${chip.label}`}
-            onPointerDown={interactive ? (event) => startDrag(chip, event) : undefined}
-            disabled={!interactive || isDrawingEnabled}
-            className={`absolute z-20 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 select-none touch-none flex-col items-center justify-center rounded-full border-2 text-center shadow-lg transition-[left,top,transform,opacity,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-              interactive ? "active:scale-110" : ""
-            } ${
-              chip.side === "team"
-                ? "border-blue-900 bg-blue-600 text-white"
-                : "border-red-900 bg-red-600 text-white"
-            } ${activeChipId === chip.id ? "ring-4 ring-white/80" : ""} ${
-              isDrawingEnabled && interactive ? "pointer-events-none opacity-90" : ""
-            }`}
-            style={{ left: `${chip.x}%`, top: `${chip.y}%` }}
+          <svg
+            className="pointer-events-none absolute inset-0 h-full w-full"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
           >
-            <span className="text-sm font-black leading-none">{chip.label}</span>
-            <span className="mt-0.5 text-[9px] font-bold opacity-80">
-              {chip.side === "team" ? "US" : "OPP"}
-            </span>
-          </button>
-        ))}
+            {drawLines.map((line) => (
+              <polyline
+                key={line.id}
+                fill="none"
+                points={line.points
+                  .map((point) => `${point.x},${point.y}`)
+                  .join(" ")}
+                stroke={line.side === "team" ? "#2563eb" : "#dc2626"}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.2"
+                vectorEffect="non-scaling-stroke"
+              />
+            ))}
+          </svg>
+
+          {visibleChips.map((chip) => (
+            <button
+              type="button"
+              key={chip.id}
+              aria-label={`${chip.detail} ${chip.label}`}
+              onPointerDown={interactive ? (event) => startDrag(chip, event) : undefined}
+              disabled={!interactive || isDrawingEnabled}
+              className={`absolute z-20 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 select-none touch-none flex-col items-center justify-center rounded-full border-2 text-center shadow-lg transition-[left,top,transform,opacity,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                interactive ? "active:scale-110" : ""
+              } ${
+                chip.side === "team"
+                  ? "border-blue-900 bg-blue-600 text-white"
+                  : "border-red-900 bg-red-600 text-white"
+              } ${activeChipId === chip.id ? "ring-4 ring-white/80" : ""} ${
+                isDrawingEnabled && interactive ? "pointer-events-none opacity-90" : ""
+              }`}
+              style={{ left: `${chip.x}%`, top: `${chip.y}%` }}
+            >
+              <span className="text-sm font-black leading-none">{chip.label}</span>
+              <span className="mt-0.5 text-[9px] font-bold opacity-80">
+                {chip.side === "team" ? "US" : "OPP"}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
     );
   }
@@ -1199,12 +1199,14 @@ export function CoachStrategyPage({
                     { key: "builder" as const, label: "Build" },
                     { key: "presets" as const, label: "Presets" },
                   ].map((tab) => (
-                    <button
+                    <Button
                       key={tab.key}
-                      type="button"
                       aria-pressed={activePanelTab === tab.key}
                       onClick={() => setActivePanelTab(tab.key)}
-                      className={`relative z-10 rounded-[1rem] px-4 py-3 text-sm font-black transition-colors duration-300 ${
+                      isDark={isDark}
+                      size="md"
+                      active={activePanelTab === tab.key}
+                      className={`relative z-10 rounded-[1rem] border-transparent duration-300 ${
                         activePanelTab === tab.key
                           ? isDark
                             ? "text-white"
@@ -1215,7 +1217,7 @@ export function CoachStrategyPage({
                       }`}
                     >
                       {tab.label}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -1261,20 +1263,15 @@ export function CoachStrategyPage({
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                           {SCENARIO_OPTIONS.map((option) => (
-                            <button
-                              type="button"
+                            <Button
                               key={option.key}
                               onClick={() => setScenario(option.key)}
-                              className={`rounded-2xl px-3 py-2 text-xs font-black ${
-                                scenario === option.key
-                                  ? "bg-sky-600 text-white"
-                                  : isDark
-                                    ? "bg-white/10 text-slate-200"
-                                    : "bg-slate-100 text-slate-700"
-                              }`}
+                              isDark={isDark}
+                              size="sm"
+                              active={scenario === option.key}
                             >
                               {option.label}
-                            </button>
+                            </Button>
                           ))}
                         </div>
                       </div>
@@ -1285,26 +1282,22 @@ export function CoachStrategyPage({
                         </div>
                         <div className="grid grid-cols-3 gap-2">
                           {AUDIENCE_OPTIONS.map((option) => (
-                            <button
-                              type="button"
+                            <Button
                               key={option.key}
                               onClick={() => setAudience(option.key)}
-                              className={`rounded-2xl px-3 py-2 text-[11px] font-black ${
-                                audience === option.key
-                                  ? "bg-indigo-600 text-white"
-                                  : isDark
-                                    ? "bg-white/10 text-slate-200"
-                                    : "bg-slate-100 text-slate-700"
-                              }`}
+                              isDark={isDark}
+                              size="sm"
+                              active={audience === option.key}
+                              className={audience === option.key ? "border-indigo-600 bg-indigo-600 text-white" : ""}
                             >
                               {option.label}
-                            </button>
+                            </Button>
                           ))}
                         </div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-[1fr_auto_auto] gap-2">
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto_auto] sm:items-center">
                       <input
                         aria-label="Step title"
                         value={currentStep?.title ?? ""}
@@ -1316,24 +1309,23 @@ export function CoachStrategyPage({
                         }`}
                         placeholder="Step title"
                       />
-                      <button
-                        type="button"
+                      <IconButton
                         onClick={addStep}
-                        className={`rounded-2xl px-3 py-2 text-xs font-black ${
-                          isDark ? "bg-white/10 text-slate-200" : "bg-slate-100 text-slate-700"
-                        }`}
+                        aria-label="Add Step"
+                        isDark={isDark}
+                        variant="secondary"
                       >
-                        Add Step
-                      </button>
-                      <button
-                        type="button"
+                        <span aria-hidden="true" className="text-base leading-none">+</span>
+                      </IconButton>
+                      <Button
                         onClick={deleteCurrentStep}
-                        className={`rounded-2xl px-3 py-2 text-xs font-black ${
-                          isDark ? "bg-rose-950/70 text-rose-200" : "bg-rose-100 text-rose-700"
-                        }`}
+                        isDark={isDark}
+                        size="sm"
+                        variant="danger"
+                        className="rounded-xl"
                       >
                         Delete
-                      </button>
+                      </Button>
                     </div>
 
                     <textarea
@@ -1350,11 +1342,13 @@ export function CoachStrategyPage({
 
                     <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
                       {steps.map((step, index) => (
-                        <button
-                          type="button"
+                        <Button
                           key={step.id}
                           onClick={() => transitionToStep(step.id)}
-                          className={`min-w-[132px] rounded-2xl border px-3 py-2 text-left ${
+                          isDark={isDark}
+                          size="sm"
+                          active={currentStepId === step.id}
+                          className={`min-w-[132px] text-left ${
                             currentStepId === step.id
                               ? "border-sky-500 bg-sky-600 text-white"
                               : isDark
@@ -1371,7 +1365,7 @@ export function CoachStrategyPage({
                           <span className="mt-1 block line-clamp-2 text-[11px] leading-tight opacity-80">
                             {step.instruction || "No instruction yet."}
                           </span>
-                        </button>
+                        </Button>
                       ))}
                     </div>
                   </div>
@@ -1405,20 +1399,16 @@ export function CoachStrategyPage({
 
                     <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
                       {DIFFICULTY_OPTIONS.map((option) => (
-                        <button
-                          type="button"
+                        <Button
                           key={option.key}
                           onClick={() => setPresetDifficulty(option.key)}
-                          className={`shrink-0 rounded-full px-4 py-2 text-xs font-black ${
-                            presetDifficulty === option.key
-                              ? "bg-sky-600 text-white"
-                              : isDark
-                                ? "bg-white/10 text-slate-200"
-                                : "bg-slate-100 text-slate-700"
-                          }`}
+                          isDark={isDark}
+                          size="sm"
+                          active={presetDifficulty === option.key}
+                          className="shrink-0 rounded-full"
                         >
                           {option.label}
-                        </button>
+                        </Button>
                       ))}
                     </div>
 
@@ -1428,7 +1418,7 @@ export function CoachStrategyPage({
                           type="button"
                           key={preset.id}
                           onClick={() => {
-                            applyPreset(preset, { playCinematic: true });
+                            applyPreset(preset);
                             setActivePanelTab("builder");
                           }}
                           className={`w-full rounded-[1.5rem] border p-4 text-left ${
@@ -1486,72 +1476,106 @@ export function CoachStrategyPage({
 
           <section className="space-y-4 lg:flex lg:min-h-0 lg:flex-col lg:overflow-hidden">
             <div className="shrink-0 flex items-center justify-end gap-2">
-              <button
-                type="button"
+              <IconButton
+                aria-label={isPreviewing && playbackMode === "inline" ? "Playing Drill" : "Play Drill"}
                 onClick={previewDrill}
-                className="rounded-full bg-sky-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-sky-900/20"
-              >
-                {isPreviewing && playbackMode === "inline" ? "Playing..." : "Play Drill"}
-              </button>
-              <button
-                type="button"
-                onClick={shareDrill}
-                className={`rounded-full px-5 py-3 text-sm font-black ${
-                  isDark ? "bg-white/10 text-slate-100" : "bg-white text-slate-800 shadow-sm"
+                isDark={isDark}
+                variant="primary"
+                className={`h-11 w-11 rounded-full ${
+                  shouldHighlightPlay && !isPreviewing
+                    ? "ring-4 ring-sky-300/70 shadow-[0_0_0_6px_rgba(56,189,248,0.18)] animate-pulse"
+                    : ""
                 }`}
               >
-                Share Drill
-              </button>
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5 fill-current"
+                >
+                  <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18a1 1 0 0 0 0-1.68L9.54 5.98A1 1 0 0 0 8 6.82Z" />
+                </svg>
+              </IconButton>
+              <IconButton
+                aria-label="Play Fullscreen Drill"
+                onClick={playFullscreenDrill}
+                isDark={isDark}
+                variant="outline"
+                className="h-11 w-11 rounded-full"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5 fill-none stroke-current"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M8 3H4v4" />
+                  <path d="M16 3h4v4" />
+                  <path d="M8 21H4v-4" />
+                  <path d="M16 21h4v-4" />
+                </svg>
+              </IconButton>
+              <IconButton
+                aria-label="Share Drill"
+                onClick={shareDrill}
+                isDark={isDark}
+                variant="outline"
+                className="h-11 w-11 rounded-full"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5 fill-none stroke-current"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="18" cy="5" r="2" />
+                  <circle cx="6" cy="12" r="2" />
+                  <circle cx="18" cy="19" r="2" />
+                  <path d="M8 12 16 6" />
+                  <path d="M8 12 16 18" />
+                </svg>
+              </IconButton>
             </div>
 
             <div className="shrink-0 grid grid-cols-2 gap-2 lg:grid-cols-4">
-              <button
-                type="button"
+              <Button
                 aria-pressed={isDrawingEnabled}
                 onClick={() => {
                   setDrawingEnabled((current) => !current);
                   setDragState(null);
                   setActiveChipId(null);
                 }}
-                className={`rounded-2xl px-3 py-3 text-sm font-black ${
-                  isDrawingEnabled
-                    ? "bg-emerald-600 text-white"
-                    : isDark
-                      ? "bg-white/10 text-slate-200"
-                      : "bg-slate-100 text-slate-700"
-                }`}
+                isDark={isDark}
+                variant="success"
+                active={isDrawingEnabled}
               >
                 {isDrawingEnabled ? "Drawing On" : "Draw Lines"}
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
                 onClick={() => setShowOpponents((current) => !current)}
-                className={`rounded-2xl px-3 py-3 text-sm font-black ${
-                  showOpponents
-                    ? "bg-red-600 text-white"
-                    : isDark
-                      ? "bg-white/10 text-slate-200"
-                      : "bg-slate-100 text-slate-700"
-                }`}
+                isDark={isDark}
+                variant="danger"
+                active={showOpponents}
               >
                 {showOpponents ? "Hide Opponent" : "Show Opponent"}
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
                 onClick={() => updateCurrentStepBoard({ drawLines: [] })}
-                className={`rounded-2xl px-3 py-3 text-sm font-black ${
-                  isDark ? "bg-white/10 text-slate-200" : "bg-slate-100 text-slate-700"
-                }`}
+                isDark={isDark}
+                variant="secondary"
               >
                 Clear Lines
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
                 onClick={resetBoard}
-                className="rounded-2xl bg-blue-700 px-3 py-3 text-sm font-black text-white"
+                isDark={isDark}
+                variant="primary"
               >
                 Reset Board
-              </button>
+              </Button>
             </div>
 
             <div
@@ -1562,7 +1586,7 @@ export function CoachStrategyPage({
               } lg:flex-1 lg:min-h-0 lg:overflow-hidden`}
             >
               {renderCourt(
-                `relative mx-auto aspect-[9/16] w-full max-w-[28rem] overflow-hidden rounded-[2rem] border-4 border-sky-900/70 bg-[linear-gradient(180deg,_#fde68a_0%,_#fef3c7_50%,_#fde68a_100%)] shadow-inner touch-none transition-[transform,opacity] duration-500 sm:max-w-[32rem] lg:max-h-full lg:max-w-[calc(100%-1rem)] xl:max-w-[40rem] 2xl:max-w-[44rem] ${
+                `relative mx-auto ${showOpponents ? "aspect-[9/16]" : "aspect-[9/8]"} w-full max-w-[28rem] overflow-hidden rounded-[2rem] border-4 border-sky-900/70 bg-[linear-gradient(180deg,_#fde68a_0%,_#fef3c7_50%,_#fde68a_100%)] shadow-inner touch-none transition-[transform,opacity] duration-500 sm:max-w-[32rem] lg:max-h-full lg:max-w-[calc(100%-1rem)] xl:max-w-[40rem] 2xl:max-w-[44rem] ${
                   isStepTransitioning ? "scale-[0.992] opacity-90" : "scale-100 opacity-100"
                 }`,
                 true,
@@ -1612,20 +1636,22 @@ export function CoachStrategyPage({
                 {currentStep?.title || "Step"} {isPreviewing ? "in motion" : isCinemaReplayReady ? "complete" : ""}
               </div>
               <div className="flex flex-wrap items-center justify-center gap-2">
-                <button
-                  type="button"
+                <Button
                   onClick={() => startDrillPlayback("cinema")}
-                  className="rounded-full bg-sky-500 px-5 py-3 text-sm font-black text-slate-950"
+                  variant="primary"
+                  isDark={false}
+                  className="rounded-full px-5 text-slate-950"
                 >
                   {isPreviewing && playbackMode === "cinema" ? "Playing..." : isCinemaReplayReady ? "Replay Drill" : "Restart"}
-                </button>
-                <button
-                  type="button"
+                </Button>
+                <Button
                   onClick={closeCinemaMode}
-                  className="rounded-full border border-white/20 bg-white/10 px-5 py-3 text-sm font-black text-white"
+                  variant="outline"
+                  isDark
+                  className="rounded-full px-5"
                 >
                   Back to Board
-                </button>
+                </Button>
               </div>
             </div>
           </div>
