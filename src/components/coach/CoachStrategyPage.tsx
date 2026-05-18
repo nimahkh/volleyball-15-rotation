@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { decodeSharedPayload, encodeSharedPayload } from "./drillSharing";
 import { Button } from "../ui/Button";
 import { IconButton } from "../ui/IconButton";
+import type { SupportSignal } from "../../lib/supportFlow";
 
 type TeamSide = "team" | "opponent";
 
@@ -706,7 +707,10 @@ function decodeSharedDrillPayload(value: string): SharedDrillPayload | null {
 function getInitialDrillState() {
   const sharedValue = new URLSearchParams(window.location.search).get("drill");
   const payload = sharedValue ? decodeSharedDrillPayload(sharedValue) : null;
+  return getDrillStateFromPayload(payload);
+}
 
+function getDrillStateFromPayload(payload: SharedDrillPayload | null) {
   if (!payload || payload.steps.length === 0) {
     return {
       drillTitle: "Coach Drill",
@@ -728,9 +732,13 @@ function getInitialDrillState() {
 
 export function CoachStrategyPage({
   isDark,
+  onOpenSupport,
+  onSupportSignal,
   onBack,
 }: {
   isDark: boolean;
+  onOpenSupport: () => void;
+  onSupportSignal: (signal: SupportSignal) => void;
   onBack: () => void;
 }) {
   const [initialDrillState] = useState(getInitialDrillState);
@@ -777,6 +785,36 @@ export function CoachStrategyPage({
   const visibleChips = showOpponents
     ? chips
     : chips.filter((chip) => chip.side === "team");
+
+  useEffect(() => {
+    function syncFromUrl() {
+      const sharedValue = new URLSearchParams(window.location.search).get("drill");
+      const nextState = getDrillStateFromPayload(
+        sharedValue ? decodeSharedDrillPayload(sharedValue) : null,
+      );
+
+      stopPlaybackTimer(previewTimerRef);
+      setDrillTitle(nextState.drillTitle);
+      setScenario(nextState.scenario);
+      setAudience(nextState.audience);
+      setSteps(nextState.steps);
+      setCurrentStepId(nextState.currentStepId);
+      setActiveChipId(null);
+      setDragState(null);
+      setDrawState(null);
+      setDrawingEnabled(false);
+      setPreviewing(false);
+      setStepTransitioning(false);
+      setPlaybackMode("inline");
+      setCinemaMode(false);
+      setCinemaReplayReady(false);
+      setShouldHighlightPlay(false);
+      stepCounterRef.current = nextState.steps.length;
+    }
+
+    window.addEventListener("popstate", syncFromUrl);
+    return () => window.removeEventListener("popstate", syncFromUrl);
+  }, []);
 
   function updateCurrentStepBoard(fields: Partial<Pick<DrillStep, "chips" | "drawLines">>) {
     setSteps((current) =>
@@ -989,11 +1027,13 @@ export function CoachStrategyPage({
 
   function previewDrill() {
     setShouldHighlightPlay(false);
+    onSupportSignal("play-drill");
     startDrillPlayback("inline");
   }
 
   function playFullscreenDrill() {
     setShouldHighlightPlay(false);
+    onSupportSignal("fullscreen-drill");
     startDrillPlayback("cinema");
   }
 
@@ -1021,9 +1061,11 @@ export function CoachStrategyPage({
     setDrawingEnabled(false);
     stepCounterRef.current = nextSteps.length;
     setShouldHighlightPlay(true);
+    onSupportSignal("apply-preset");
   }
 
   async function shareDrill() {
+    onSupportSignal("share-drill");
     const payload: SharedDrillPayload = {
       version: 1,
       title: drillTitle,
@@ -1048,7 +1090,6 @@ export function CoachStrategyPage({
       try {
         await navigator.share({
           title: drillTitle,
-          text: `Open drill: ${drillTitle}`,
           url: url.toString(),
         });
         return;
@@ -1158,18 +1199,31 @@ export function CoachStrategyPage({
     >
       <div className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col px-3 pb-4 pt-3 lg:h-screen lg:min-h-0 lg:px-5 lg:pb-5">
         <header className="shrink-0 flex items-center justify-between gap-3">
-          <button
-            type="button"
-            aria-label="Back to rotation helper"
-            onClick={onBack}
-            className={`rounded-full px-4 py-2 text-sm font-black ${
-              isDark
-                ? "bg-white/10 text-white hover:bg-white/15"
-                : "bg-white text-slate-800 shadow-sm"
-            }`}
-          >
-            Back
-          </button>
+          <div className="flex items-center gap-2">
+            <Button
+              aria-label="Back to rotation helper"
+              onClick={onBack}
+              isDark={isDark}
+              variant="outline"
+              size="sm"
+              className="rounded-full"
+            >
+              Back
+            </Button>
+            <Button
+              aria-label="Support the app"
+              onClick={onOpenSupport}
+              isDark={isDark}
+              variant="primary"
+              size="sm"
+              className={`rounded-full border-rose-500 bg-gradient-to-r from-rose-500 via-pink-500 to-orange-400 text-white shadow-[0_0_0_4px_rgba(251,113,133,0.18),0_12px_28px_rgba(244,63,94,0.28)] transition-transform hover:-translate-y-0.5 ${
+                isDark ? "ring-1 ring-rose-300/30" : ""
+              } animate-pulse`}
+            >
+              <span aria-hidden="true" className="mr-1 text-red-100">♥</span>
+              Support
+            </Button>
+          </div>
           <div className="text-right">
             <div className="text-[11px] font-black uppercase tracking-[0.24em] text-sky-500">
               Coach Board

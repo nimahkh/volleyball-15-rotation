@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { encodeSharedPayload } from "./components/coach/drillSharing";
@@ -6,6 +6,7 @@ import { encodeSharedPayload } from "./components/coach/drillSharing";
 describe("App", () => {
   beforeEach(() => {
     window.history.replaceState({}, "", "/");
+    window.localStorage.clear();
   });
 
   it("renders the lineup form before players are entered", () => {
@@ -90,6 +91,36 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
+  it("opens the support modal from the main page", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /support the app/i }));
+
+    expect(
+      screen.getByRole("heading", { name: /keep the court free/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /open bunq/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("prompts for support after repeated meaningful use", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /start/i }));
+    await user.click(screen.getByRole("button", { name: /next/i }));
+    await user.click(screen.getByRole("button", { name: /play/i }));
+    await user.click(screen.getByRole("button", { name: /open coach board/i }));
+
+    expect(
+      await screen.findByRole("heading", { name: /keep the court free/i }),
+    ).toBeInTheDocument();
+  });
+
   it("opens a shared drill link directly on the coach route", () => {
     const shared = encodeSharedPayload({
       version: 1,
@@ -115,6 +146,64 @@ describe("App", () => {
     ).toBeInTheDocument();
     expect(screen.getByDisplayValue("Shared Drill")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Shared instruction")).toBeInTheDocument();
+  });
+
+  it("loads a shared drill even if pasted text is appended after the encoded payload", () => {
+    const shared = encodeSharedPayload({
+      version: 1,
+      title: "Pasted Shared Drill",
+      scenario: "serve-receive",
+      audience: "team",
+      steps: [
+        {
+          id: "step-1",
+          title: "Setup",
+          instruction: "Pasted instruction",
+          chips: [],
+          drawLines: [],
+        },
+      ],
+    });
+    const malformed = `${shared} Open drill: Pasted Shared Drill`;
+    window.history.replaceState({}, "", `/coach?drill=${encodeURIComponent(malformed)}`);
+
+    render(<App />);
+
+    expect(screen.getByDisplayValue("Pasted Shared Drill")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Pasted instruction")).toBeInTheDocument();
+  });
+
+  it("updates the coach board when a new shared drill url is loaded after mount", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /open coach board/i }));
+    expect(screen.getByDisplayValue(/coach drill/i)).toBeInTheDocument();
+
+    const shared = encodeSharedPayload({
+      version: 1,
+      title: "Late Shared Drill",
+      scenario: "transition",
+      audience: "unit",
+      steps: [
+        {
+          id: "shared-step-1",
+          title: "Read",
+          instruction: "Late-loaded instruction",
+          chips: [],
+          drawLines: [],
+        },
+      ],
+    });
+
+    await act(async () => {
+      window.history.pushState({}, "", `/coach?drill=${shared}`);
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    });
+
+    expect(await screen.findByDisplayValue("Late Shared Drill")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Late-loaded instruction")).toBeInTheDocument();
   });
 
   it("plays a preset drill in fullscreen cinema mode", async () => {

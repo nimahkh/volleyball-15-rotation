@@ -5,12 +5,21 @@ import { Court } from "./court/Court";
 import { ChipOnboarding } from "./onboarding/ChipOnboarding";
 import { MobileBottomSheet } from "./receive/MobileBottomSheet";
 import { PlayerInsightChooser } from "./receive/PlayerInsightChooser";
+import { SupportModal } from "./support/SupportModal";
 import { Button } from "./ui/Button";
 import { useChipOnboarding } from "../hooks/useChipOnboarding";
 import { useLineupForm } from "../hooks/useLineupForm";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { usePlaybackControls } from "../hooks/usePlaybackControls";
 import { useReceiveModeInsights } from "../hooks/useReceiveModeInsights";
+import { installClarity } from "../lib/clarity";
+import {
+  dismissSupportPrompt,
+  markSupportDonation,
+  markSupportPromptOpened,
+  recordSupportSignal,
+  type SupportSignal,
+} from "../lib/supportFlow";
 import { Rotation } from "../providers/Rotation";
 import { useTheme } from "../providers/useTheme";
 
@@ -19,8 +28,13 @@ function getCurrentPage() {
 }
 
 export function AppContent() {
+  const clarityProjectId = import.meta.env.VITE_CLARITY_PROJECT_ID?.trim();
+  const bunqMeUrl =
+    import.meta.env.VITE_BUNQ_ME_URL?.trim() || "https://bunq.me/NHabibkhoda";
   const { theme, toggleTheme } = useTheme();
   const [page, setPage] = useState<"rotation" | "coach">(getCurrentPage);
+  const [isSupportOpen, setSupportOpen] = useState(false);
+  const [supportModalVersion, setSupportModalVersion] = useState(0);
   const {
     tab,
     setTab,
@@ -69,6 +83,33 @@ export function AppContent() {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
+  useEffect(() => {
+    if (clarityProjectId) {
+      installClarity(clarityProjectId);
+    }
+  }, [clarityProjectId]);
+
+  function openSupportPrompt() {
+    markSupportPromptOpened();
+    setSupportModalVersion((current) => current + 1);
+    setSupportOpen(true);
+  }
+
+  function recordUsageSignal(signal: SupportSignal) {
+    if (recordSupportSignal(signal)) {
+      openSupportPrompt();
+    }
+  }
+
+  function completeDonation() {
+    if (bunqMeUrl) {
+      window.open(bunqMeUrl, "_blank", "noopener,noreferrer");
+    }
+
+    markSupportDonation();
+    setSupportOpen(false);
+  }
+
   const insightPanel =
     selectedToken && tab === "receive" ? (
       <PlayerInsightChooser
@@ -81,28 +122,44 @@ export function AppContent() {
 
   if (page === "coach") {
     return (
-      <CoachStrategyPage
-        isDark={isDark}
-        onBack={() => {
-          const url = new URL(window.location.href);
-          url.pathname = "/";
-          url.searchParams.delete("drill");
-          window.history.pushState({}, "", url.toString());
-          setPage("rotation");
-        }}
-      />
+      <>
+        <CoachStrategyPage
+          isDark={isDark}
+          onOpenSupport={openSupportPrompt}
+          onSupportSignal={recordUsageSignal}
+          onBack={() => {
+            const url = new URL(window.location.href);
+            url.pathname = "/";
+            url.searchParams.delete("drill");
+            window.history.pushState({}, "", url.toString());
+            setPage("rotation");
+          }}
+        />
+        <SupportModal
+          key={`coach-support-${supportModalVersion}`}
+          isDark={isDark}
+          isOpen={isSupportOpen}
+          bunqMeUrl={bunqMeUrl}
+          onClose={() => {
+            dismissSupportPrompt();
+            setSupportOpen(false);
+          }}
+          onDonate={completeDonation}
+        />
+      </>
     );
   }
 
   return (
-    <div
-      className={`flex min-h-screen items-center justify-center transition-colors sm:p-4 ${
-        isDark
-          ? "bg-[radial-gradient(circle_at_top,_rgba(37,99,235,0.18),_transparent_32%),linear-gradient(180deg,_#09090b,_#111827)] text-zinc-100"
-          : "bg-zinc-100 text-zinc-900"
-      }`}
-    >
-      <div className="mx-auto w-full max-w-[560px] px-4 py-6">
+    <>
+      <div
+        className={`flex min-h-screen items-center justify-center transition-colors sm:p-4 ${
+          isDark
+            ? "bg-[radial-gradient(circle_at_top,_rgba(37,99,235,0.18),_transparent_32%),linear-gradient(180deg,_#09090b,_#111827)] text-zinc-100"
+            : "bg-zinc-100 text-zinc-900"
+        }`}
+      >
+        <div className="mx-auto w-full max-w-[560px] px-4 py-6">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h1
             className={`text-xl font-extrabold ${
@@ -111,21 +168,37 @@ export function AppContent() {
           >
             Volleyball 5-1 Rotation Helper
           </h1>
-          <Button
-            aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
-            onClick={toggleTheme}
-            isDark={isDark}
-            size="sm"
-            variant="outline"
-            className="rounded-full"
-          >
-            {isDark ? "Light" : "Dark"}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              aria-label="Support the app"
+              onClick={openSupportPrompt}
+              isDark={isDark}
+              size="sm"
+              variant="primary"
+              className={`rounded-full border-rose-500 bg-gradient-to-r from-rose-500 via-pink-500 to-orange-400 text-white shadow-[0_0_0_4px_rgba(251,113,133,0.18),0_12px_28px_rgba(244,63,94,0.28)] transition-transform hover:-translate-y-0.5 ${
+                isDark ? "ring-1 ring-rose-300/30" : ""
+              } animate-pulse`}
+            >
+              <span aria-hidden="true" className="mr-1 text-red-100">♥</span>
+              Support
+            </Button>
+            <Button
+              aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
+              onClick={toggleTheme}
+              isDark={isDark}
+              size="sm"
+              variant="outline"
+              className="rounded-full"
+            >
+              {isDark ? "Light" : "Dark"}
+            </Button>
+          </div>
         </div>
 
         <Button
           aria-label="Open Coach Board"
           onClick={() => {
+            recordUsageSignal("open-coach");
             const url = new URL(window.location.href);
             url.pathname = "/coach";
             window.history.pushState({}, "", url.toString());
@@ -154,7 +227,10 @@ export function AppContent() {
 
         {!ready && (
           <form
-            onSubmit={submitForm}
+            onSubmit={(event) => {
+              recordUsageSignal("start-lineup");
+              submitForm(event);
+            }}
             className={`space-y-4 rounded-2xl border p-4 shadow-sm transition-colors ${
               isDark
                 ? "border-zinc-800 bg-zinc-900/80 shadow-black/30"
@@ -261,7 +337,10 @@ export function AppContent() {
                 }`}
               >
                 <Button
-                  onClick={playDemo}
+                  onClick={() => {
+                    recordUsageSignal("play-receive");
+                    playDemo();
+                  }}
                   disabled={isPlaying || resetPosition}
                   isDark={isDark}
                   variant="primary"
@@ -338,7 +417,10 @@ export function AppContent() {
 
             <div className="flex items-center justify-between gap-2">
               <Button
-                onClick={prevRotation}
+                onClick={() => {
+                  prevRotation();
+                  recordUsageSignal("rotation-nav");
+                }}
                 isDark={isDark}
                 variant="outline"
                 className="rounded-full px-4"
@@ -354,7 +436,10 @@ export function AppContent() {
                 animation.
               </div>
               <Button
-                onClick={nextRotation}
+                onClick={() => {
+                  nextRotation();
+                  recordUsageSignal("rotation-nav");
+                }}
                 variant="primary"
                 isDark={isDark}
                 className="rounded-full px-4"
@@ -378,6 +463,19 @@ export function AppContent() {
       </div>
 
       {showChipOnboarding && <ChipOnboarding onClose={closeChipOnboarding} />}
-    </div>
+      </div>
+
+      <SupportModal
+        key={`home-support-${supportModalVersion}`}
+        isDark={isDark}
+        isOpen={isSupportOpen}
+        bunqMeUrl={bunqMeUrl}
+        onClose={() => {
+          dismissSupportPrompt();
+          setSupportOpen(false);
+        }}
+        onDonate={completeDonation}
+      />
+    </>
   );
 }

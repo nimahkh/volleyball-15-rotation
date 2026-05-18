@@ -20,9 +20,14 @@ export function encodeSharedPayload(payload: unknown) {
   return encodeBase64Url(JSON.stringify(payload));
 }
 
+function sanitizeSharedValue(value: string) {
+  const match = value.trim().match(/^[A-Za-z0-9\-_]+/);
+  return match?.[0] ?? value.trim();
+}
+
 export function decodeSharedPayload<T>(value: string): T | null {
   try {
-    return JSON.parse(decodeBase64Url(value)) as T;
+    return JSON.parse(decodeBase64Url(sanitizeSharedValue(value))) as T;
   } catch {
     return null;
   }

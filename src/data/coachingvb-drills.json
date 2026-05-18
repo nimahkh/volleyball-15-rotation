@@ -1,0 +1,227 @@
+{
+  "source": {
+    "site": "Coaching Volleyball",
+    "collection_title": "Volleyball Drills Collection",
+    "collection_url": "https://coachingvb.com/volleyball-drills-collection/",
+    "collected_at": "2026-05-14"
+  },
+  "drills": [
+    {
+      "title": "Twenty One",
+      "url": "https://coachingvb.com/drill-twenty-one/",
+      "levels": ["all"],
+      "level_label": "All",
+      "categories": ["general-ball-handling"]
+    },
+    {
+      "title": "2-Player Set & Touch",
+      "url": "https://coachingvb.com/drill-2-player-set-touch/",
+      "levels": ["intermediate", "advanced"],
+      "level_label": "Intermediate, Advanced",
+      "categories": ["general-ball-handling"]
+    },
+    {
+      "title": "2-Task Ball-Handling Shuttle",
+      "url": "https://coachingvb.com/volleyball-drill-2-task-ball-handing-shuttle/",
+      "levels": ["basic", "intermediate"],
+      "level_label": "Basic, Intermediate",
+      "categories": ["general-ball-handling"]
+    },
+    {
+      "title": "5-Player Passing and Movement",
+      "url": "https://coachingvb.com/drill-5-player-passing-and-movement/",
+      "levels": ["all"],
+      "level_label": "All",
+      "categories": ["general-ball-handling"]
+    },
+    {
+      "title": "Run & Serve",
+      "url": "https://coachingvb.com/drill-run-serve/",
+      "levels": ["all"],
+      "level_label": "All",
+      "categories": ["serving"]
+    },
+    {
+      "title": "Amoeba Serving",
+      "url": "https://coachingvb.com/drill-ameoba-serving/",
+      "levels": ["beginner", "intermediate"],
+      "level_label": "Beginner, Intermediate",
+      "categories": ["serving"]
+    },
+    {
+      "title": "Passing Triplets",
+      "url": "https://coachingvb.com/drill-passing-triplets/",
+      "levels": ["all"],
+      "level_label": "All",
+      "categories": ["serving", "passing-serve-receive"]
+    },
+    {
+      "title": "Serving-Passing-Setting Quads",
+      "url": "https://coachingvb.com/drill-serving-passing-setting-quads/",
+      "levels": ["intermediate", "advanced"],
+      "level_label": "Intermediate, Advanced",
+      "categories": ["serving", "passing-serve-receive", "setting"]
+    },
+    {
+      "title": "8-Person Serve & Pass",
+      "url": "https://coachingvb.com/drill-8-person-serve-pass/",
+      "levels": ["intermediate", "advanced"],
+      "level_label": "Intermediate, Advanced",
+      "categories": ["serving", "passing-serve-receive"]
+    },
+    {
+      "title": "2-sided Serve & Pass",
+      "url": "https://coachingvb.com/drill-2-sided-serve-pass/",
+      "levels": ["intermediate", "advanced"],
+      "level_label": "Intermediate, Advanced",
+      "categories": ["serving", "passing-serve-receive"]
+    },
+    {
+      "title": "Get-2 Serve & Pass",
+      "url": "https://coachingvb.com/drill-get-2-serve-pass/",
+      "levels": ["intermediate", "advanced"],
+      "level_label": "Intermediate, Advanced",
+      "categories": ["serving", "passing-serve-receive"]
+    },
+    {
+      "title": "Servers vs. Passers Scoring",
+      "url": "https://coachingvb.com/drill-servers-vs-passers-scoring/",
+      "levels": ["intermediate", "advanced"],
+      "level_label": "Intermediate, Advanced",
+      "categories": ["serving", "passing-serve-receive"]
+    },
+    {
+      "title": "Run Serve Receive",
+      "url": "https://coachingvb.com/drill-run-serve-receive/",
+      "levels": ["all"],
+      "level_label": "All",
+      "categories": ["passing-serve-receive"]
+    },
+    {
+      "title": "Flip-Switch",
+      "url": "https://coachingvb.com/drill-flip-switch/",
+      "levels": ["all"],
+      "level_label": "All",
+      "categories": ["passing-serve-receive"]
+    },
+    {
+      "title": "14-Player Serve-Pass-Hit",
+      "url": "https://coachingvb.com/drill-14-player-serve-pass-hit/",
+      "levels": ["all"],
+      "level_label": "All",
+      "categories": ["passing-serve-receive"]
+    },
+    {
+      "title": "5-player Pass and Set",
+      "url": "https://coachingvb.com/drill-5-player-pass-and-set/",
+      "levels": ["beginner"],
+      "level_label": "Beginner",
+      "categories": ["passing-serve-receive", "setting"]
+    },
+    {
+      "title": "Dig and Set Back",
+      "url": "https://coachingvb.com/drill-dig-and-set-back/",
+      "levels": ["intermediate", "advanced"],
+      "level_label": "Intermediate, Advanced",
+      "categories": ["setting", "defense"]
+    },
+    {
+      "title": "Second Ball Setting",
+      "url": "https://coachingvb.com/drill-second-ball-setting/",
+      "levels": ["all"],
+      "level_label": "All",
+      "categories": ["setting", "defense"]
+    },
+    {
+      "title": "Back and Front Setting Warm-up",
+      "url": "https://coachingvb.com/volleyball-drill-back-and-front-setting-warm-up/",
+      "levels": ["intermediate", "advanced"],
+      "level_label": "Intermediate, Advanced",
+      "categories": ["setting"]
+    },
+    {
+      "title": "7-in-7 Hitting",
+      "url": "https://coachingvb.com/drill-7-in-7-hitting/",
+      "levels": ["intermediate", "advanced"],
+      "level_label": "Intermediate, Advanced",
+      "categories": ["hitting"]
+    },
+    {
+      "title": "Continuous Transition",
+      "url": "https://coachingvb.com/drill-continuous-transition/",
+      "levels": ["intermediate", "advanced"],
+      "level_label": "Intermediate, Advanced",
+      "categories": ["hitting"]
+    },
+    {
+      "title": "The Hard Drill",
+      "url": "https://coachingvb.com/drill-the-hard-drill/",
+      "levels": ["intermediate", "advanced"],
+      "level_label": "Intermediate, Advanced",
+      "categories": ["hitting", "game-play"]
+    },
+    {
+      "title": "Cooperative Cross-Court Hitting",
+      "url": "https://coachingvb.com/drill-cooperative-cross-court-hitting/",
+      "levels": ["intermediate", "advanced"],
+      "level_label": "Intermediate, Advanced",
+      "categories": ["hitting", "game-play"]
+    },
+    {
+      "title": "Rotating Cooperative Cross-Court Hitting",
+      "url": "https://coachingvb.com/drill-rotating-cooperative-cross-court-hitting/",
+      "levels": ["intermediate", "advanced"],
+      "level_label": "Intermediate, Advanced",
+      "categories": ["hitting", "defense", "game-play"]
+    },
+    {
+      "title": "Hitter Tourney",
+      "url": "https://coachingvb.com/drill-hitter-tourney/",
+      "levels": ["intermediate", "advanced"],
+      "level_label": "Intermediate, Advanced",
+      "categories": ["hitting", "game-play"]
+    },
+    {
+      "title": "3 v 3 All-Touch Transition & Attack",
+      "url": "https://coachingvb.com/drill-3-v-3-all-touch-transition-attack/",
+      "levels": ["intermediate", "advanced"],
+      "level_label": "Intermediate, Advanced",
+      "categories": ["hitting", "game-play"]
+    },
+    {
+      "title": "Basic Blocking Footwork",
+      "url": "https://coachingvb.com/drill-basic-blocking-footwork/",
+      "levels": ["all"],
+      "level_label": "All",
+      "categories": ["blocking"]
+    },
+    {
+      "title": "Continuous Cross-Court Digging",
+      "url": "https://coachingvb.com/drill-continuous-cross-court-digging/",
+      "levels": ["all"],
+      "level_label": "All",
+      "categories": ["defense"]
+    },
+    {
+      "title": "Belly-to-Dig",
+      "url": "https://coachingvb.com/volleyball-drill-belly-to-dig/",
+      "levels": ["all"],
+      "level_label": "All",
+      "categories": ["defense"]
+    },
+    {
+      "title": "The Belly Drill",
+      "url": "https://coachingvb.com/drill-the-belly-drill/",
+      "levels": ["all"],
+      "level_label": "All",
+      "categories": ["game-play"]
+    },
+    {
+      "title": "6 v 6s",
+      "url": "https://coachingvb.com/drill-6-v-6s/",
+      "levels": ["all"],
+      "level_label": "All",
+      "categories": ["game-play"]
+    }
+  ]
+}
